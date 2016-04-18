@@ -1,0 +1,269 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\packages\xunit.runner.visualstudio.2.1.0\build\net20\xunit.runner.visualstudio.props" Condition="Exists('..\packages\xunit.runner.visualstudio.2.1.0\build\net20\xunit.runner.visualstudio.props')" />
+  <Import Project="..\packages\xunit.core.2.1.0\build\portable-net45+win8+wp8+wpa81\xunit.core.props" Condition="Exists('..\packages\xunit.core.2.1.0\build\portable-net45+win8+wp8+wpa81\xunit.core.props')" />
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{CBBFB2D7-6659-41FD-9EE1-185C1AA79D92}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Quantler.Tests</RootNamespace>
+    <AssemblyName>Quantler.Tests</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <NuGetPackageImportStamp>fbb06567</NuGetPackageImportStamp>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x64\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <OutputPath>bin\x64\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="FluentAssertions, Version=4.3.2.0, Culture=neutral, PublicKeyToken=33f2691a05b67b6a, processorArchitecture=MSIL">
+      <HintPath>..\packages\FluentAssertions.4.3.2\lib\net45\FluentAssertions.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="FluentAssertions.Core, Version=4.3.2.0, Culture=neutral, PublicKeyToken=33f2691a05b67b6a, processorArchitecture=MSIL">
+      <HintPath>..\packages\FluentAssertions.4.3.2\lib\net45\FluentAssertions.Core.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Xml" />
+    <Reference Include="xunit.assert, Version=2.1.0.3179, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
+      <HintPath>..\packages\xunit.assert.2.1.0\lib\portable-net45+win8+wp8+wpa81\xunit.assert.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="xunit.core, Version=2.1.0.3179, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
+      <HintPath>..\packages\xunit.extensibility.core.2.1.0\lib\portable-net45+win8+wp8+wpa81\xunit.core.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Agent\TestTradingAgent.cs" />
+    <Compile Include="Agent\TestTradingPortfolio.cs" />
+    <Compile Include="Backtester\RegressionTests.cs" />
+    <Compile Include="Backtester\TestMultiSecurity.cs" />
+    <Compile Include="Backtester\TestSingleSecurity.cs" />
+    <Compile Include="Common\Research\ZeroTransactionCosts.cs" />
+    <Compile Include="Common\Research\RandomSymbol.cs" />
+    <Compile Include="Common\Research\RandomTicks.cs" />
+    <Compile Include="Common\TestAccount.cs" />
+    <Compile Include="Common\TestBar.cs" />
+    <Compile Include="Common\TestBarList.cs" />
+    <Compile Include="Common\TestBarListTracker.cs" />
+    <Compile Include="Common\TestBook.cs" />
+    <Compile Include="Common\TestBookTracker.cs" />
+    <Compile Include="Common\TestBroker.cs" />
+    <Compile Include="Common\TestCalc.cs" />
+    <Compile Include="Common\TestGenericTracker.cs" />
+    <Compile Include="Common\TestMultiSim.cs" />
+    <Compile Include="Common\TestOrder.cs" />
+    <Compile Include="Common\TestParameter.cs" />
+    <Compile Include="Common\TestPosition.cs" />
+    <Compile Include="Common\TestPositionTracker.cs" />
+    <Compile Include="Common\TestRandomSymbol.cs" />
+    <Compile Include="Common\TestRandomTicks.cs" />
+    <Compile Include="Common\TestResults.cs" />
+    <Compile Include="Common\TestSecurity.cs" />
+    <Compile Include="Common\TestSingleSim.cs" />
+    <Compile Include="Common\TestTick.cs" />
+    <Compile Include="Common\TestTickArchiver.cs" />
+    <Compile Include="Common\TestTickFileFilter.cs" />
+    <Compile Include="Common\TestTikWriterReader.cs" />
+    <Compile Include="Common\TestTrade.cs" />
+    <Compile Include="Common\TestUtil.cs" />
+    <Compile Include="Indicators\TestIndicatorAroon.cs" />
+    <Compile Include="Indicators\TestIndicatorAroonOscillator.cs" />
+    <Compile Include="Indicators\TestIndicatorDirectionalIndex.cs" />
+    <Compile Include="Indicators\TestIndicatorAverageTrueRange.cs" />
+    <Compile Include="Indicators\TestIndicatorBalanceOfPower.cs" />
+    <Compile Include="Indicators\TestIndicatorBollingerBands.cs" />
+    <Compile Include="Indicators\TestIndicatorChandelMomentumOscillator.cs" />
+    <Compile Include="Indicators\TestIndicatorCommodityChannelIndex.cs" />
+    <Compile Include="Indicators\TestIndicatorExponentialMovingAverage.cs" />
+    <Compile Include="Indicators\TestIndicatorMomentum.cs" />
+    <Compile Include="Indicators\TestIndicatorMovingAverage.cs" />
+    <Compile Include="Indicators\TestIndicatorMovingAverageConDiv.cs" />
+    <Compile Include="Indicators\TestIndicatorParabolicSAR.cs" />
+    <Compile Include="Indicators\TestIndicatorRateOfChange.cs" />
+    <Compile Include="Indicators\TestIndicatorRelativeStrenghtIndex.cs" />
+    <Compile Include="Indicators\TestIndicatorSimpleMovingAverage.cs" />
+    <Compile Include="Indicators\TestIndicatorTrueRange.cs" />
+    <Compile Include="Indicators\TestIndicatorWeightedMovingAverage.cs" />
+    <Compile Include="Indicators\TestIndicatorWilliamsR.cs" />
+    <Compile Include="Indicators\Util.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Templates\TestEntryTemplate.cs" />
+    <Compile Include="Templates\TestExitTemplate.cs" />
+    <Compile Include="Templates\TestIndicatorTemplate.cs" />
+    <Compile Include="Templates\TestMoneyManagementTemplate.cs" />
+    <Compile Include="Templates\TestRiskManagementTemplate.cs" />
+    <Compile Include="Templates\TestStatistic.cs" />
+    <Compile Include="Templates\TestTemplate.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+    <None Include="Common\ABN20080318.TIK">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Common\AUDJPY.zip">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Common\EURUSD20080826.TIK">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Common\FTI20070926.EPF">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Common\FTI20070926.TIK">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Common\SPX20070926.TIK">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Common\TPX20120724.TIK">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Indicators\ResultFiles\dx.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Indicators\ResultFiles\aroon.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Indicators\ResultFiles\aroonosc.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Indicators\ResultFiles\atr.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Indicators\ResultFiles\bob.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Indicators\ResultFiles\bop.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Indicators\ResultFiles\channelindex.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Indicators\ResultFiles\cmo.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Indicators\ResultFiles\condiv.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Indicators\ResultFiles\ema.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Indicators\ResultFiles\mom.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Indicators\ResultFiles\psar.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Indicators\ResultFiles\roc.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Indicators\ResultFiles\rsi.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Indicators\ResultFiles\sma.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Indicators\ResultFiles\truerange.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Indicators\ResultFiles\willr.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Indicators\ResultFiles\wma.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Common\TestGenericTracker.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Common\TestPositionClosedPL.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Common\TestWAG.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Quantler.Indicators\Quantler.Indicators.csproj">
+      <Project>{21f01535-3125-4f9f-bce3-5cc18689272e}</Project>
+      <Name>Quantler.Indicators</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Quantler.Interfaces\Quantler.Interfaces.csproj">
+      <Project>{a3893de4-a831-4ff2-97a9-c306f6bfd1f1}</Project>
+      <Name>Quantler.Interfaces</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Quantler.Templates\Quantler.Templates.csproj">
+      <Project>{d71f0a11-0ace-46e7-b625-0dd15ff82d6f}</Project>
+      <Name>Quantler.Templates</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Quantler\Quantler.csproj">
+      <Project>{896a5737-5764-4251-9963-32ec4853a042}</Project>
+      <Name>Quantler</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Regression\" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\xunit.core.2.1.0\build\portable-net45+win8+wp8+wpa81\xunit.core.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\xunit.core.2.1.0\build\portable-net45+win8+wp8+wpa81\xunit.core.props'))" />
+    <Error Condition="!Exists('..\packages\xunit.runner.visualstudio.2.1.0\build\net20\xunit.runner.visualstudio.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\xunit.runner.visualstudio.2.1.0\build\net20\xunit.runner.visualstudio.props'))" />
+    <Error Condition="!Exists('..\packages\xunit.MSBuild.2.0.0.0\build\xunit.MSBuild.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\xunit.MSBuild.2.0.0.0\build\xunit.MSBuild.targets'))" />
+  </Target>
+  <Import Project="..\packages\xunit.MSBuild.2.0.0.0\build\xunit.MSBuild.targets" Condition="Exists('..\packages\xunit.MSBuild.2.0.0.0\build\xunit.MSBuild.targets')" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
