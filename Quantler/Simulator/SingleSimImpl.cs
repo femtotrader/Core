@@ -148,6 +148,16 @@ namespace Quantler.Simulator
         public double RunTimeTicksPerSec { get { return _tickcount / RunTimeSec; } }
 
         /// <summary>
+        /// Total files available for processing, based on provided filter or tick files
+        /// </summary>
+        public int FilesPresent { get; private set; }
+
+        /// <summary>
+        /// Files processed in this simulation run.
+        /// </summary>
+        public int FilesProcessed { get; private set; }
+
+        /// <summary>
         /// Gets broker used in the simulation
         /// </summary>
         public SimBroker SimBroker { get { return _broker; } }
@@ -207,6 +217,8 @@ namespace Quantler.Simulator
 
             // save index and objects in order
             _doneindex = _tickfiles.Length - 1;
+            FilesPresent = _tickfiles.Length;
+            FilesProcessed = 0;
 
             // initialize initial files (readahead x number of files)
             InitializeAhead(_cacheahead);
@@ -267,6 +279,8 @@ namespace Quantler.Simulator
             _executions = 0;
             _availticks = 0;
             _tickcount = 0;
+            FilesProcessed = 0;
+            FilesPresent = 0;
         }
 
         /// <summary>
@@ -310,7 +324,7 @@ namespace Quantler.Simulator
             _availticks += ticksfound;
 
             //Dispose and clear memory by removing old and unused files
-            if(_currentindex > 0)
+            if (_currentindex > 0)
                 CloseUnusedReaders(_currentindex - files, _currentindex - 1);
         }
 
@@ -322,7 +336,10 @@ namespace Quantler.Simulator
         private void CloseUnusedReaders(int from, int to)
         {
             for (int i = from; i < to; i++)
+            {
                 _securityfiles[i].HistSource.Close();
+                FilesProcessed++;
+            }
         }
 
         private SecurityImpl getsec(string file)

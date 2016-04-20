@@ -46,6 +46,16 @@ namespace Quantler.Interfaces
         /// </summary>
         int TicksProcessed { get; }
 
+        /// <summary>
+        /// Total files available for processing, based on provided filter or tick files
+        /// </summary>
+        int FilesPresent { get; }
+
+        /// <summary>
+        /// Files processed in this simulation run.
+        /// </summary>
+        int FilesProcessed { get; }
+
         #endregion Public Properties
 
         #region Public Methods

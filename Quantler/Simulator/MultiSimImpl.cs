@@ -128,6 +128,24 @@ namespace Quantler.Simulator
         public TickFileFilter FileFilter { get { return _filter; } set { _filter = value; D("Restarting simulator with " + _filter); Reset(); Initialize(); } }
 
         /// <summary>
+        /// Total files available for processing, based on provided filter or tick files
+        /// </summary>
+        public int FilesPresent
+        {
+            get;
+            private set;
+        }
+
+        /// <summary>
+        /// Files processed in this simulation run.
+        /// </summary>
+        public int FilesProcessed
+        {
+            get;
+            private set;
+        }
+
+        /// <summary>
         /// Fills executed during this simulation run.
         /// </summary>
         public int FillCount { get { return _executions; } }
@@ -205,6 +223,8 @@ namespace Quantler.Simulator
 
             // setup our initial index
             _currentindex = 0;
+            FilesPresent = _fileInfos.Count;
+            FilesProcessed = 0;
 
             // read in single tick just to get first time for user
             InitializeAhead(_readcache);
@@ -250,6 +270,8 @@ namespace Quantler.Simulator
             _executions = 0;
             _availticks = 0;
             _tickcount = 0;
+            FilesProcessed = 0;
+            FilesPresent = 0;
         }
 
         /// <summary>
@@ -321,6 +343,10 @@ namespace Quantler.Simulator
             }
         }
 
+        /// <summary>
+        /// Flush data
+        /// </summary>
+        /// <param name="endsim"></param>
         private void FlushCache(long endsim)
         {
             bool simrunning = true;
@@ -400,6 +426,11 @@ namespace Quantler.Simulator
             V("simulating exiting.");
         }
 
+        /// <summary>
+        /// Load security data (tik data) from file (either zipped or on disk)
+        /// </summary>
+        /// <param name="tickfileidx"></param>
+        /// <returns></returns>
         private SecurityImpl GetSecurity(int tickfileidx)
         {
             if (tickfileidx < _tickfiles.Length)
@@ -408,6 +439,11 @@ namespace Quantler.Simulator
                 return null;
         }
 
+        /// <summary>
+        /// Load security data (tik data) from file (either zipped or on disk)
+        /// </summary>
+        /// <param name="file"></param>
+        /// <returns></returns>
         private SecurityImpl GetSecurity(string file)
         {
             try
@@ -431,6 +467,10 @@ namespace Quantler.Simulator
             }
         }
 
+        /// <summary>
+        /// Read files into memory asynchronously
+        /// </summary>
+        /// <param name="files"></param>
         private void InitializeAhead(int files)
         {
             //Dispose and clear memory by removing old and unused files
@@ -521,9 +561,16 @@ namespace Quantler.Simulator
         {
             var found = _workers.Where(x => !x.HasTicks).ToArray();
             foreach (var key in found)
+            {
                 _workers.Remove(key);
+                FilesProcessed++;
+            }
         }
 
+        /// <summary>
+        /// Flush cached files to a specific time
+        /// </summary>
+        /// <param name="ftime"></param>
         private void SecurityPlayTo(long ftime)
         {
             // start all the workers reading files in background
@@ -545,6 +592,9 @@ namespace Quantler.Simulator
             _simend = DateTime.Now.Ticks;
         }
 
+        /// <summary>
+        /// Get next times moments
+        /// </summary>
         private void Setnexttime()
         {
             // get next times of ticks in cache
@@ -560,6 +610,10 @@ namespace Quantler.Simulator
             _nextticktime = i == times.Count() ? Endsim : times.ElementAt(i).Value;
         }
 
+        /// <summary>
+        /// Trace logging method
+        /// </summary>
+        /// <param name="msg"></param>
         private void V(string msg)
         {
             _log.Trace("[MultiSimImpl] " + _lasttime + " " + msg);

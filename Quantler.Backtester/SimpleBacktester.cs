@@ -33,7 +33,7 @@ namespace Quantler.Backtester
     {
         #region Private Fields
 
-        private bool _orders = false;
+        private bool _orders;
 
         private bool _trades = true;
 
@@ -41,7 +41,7 @@ namespace Quantler.Backtester
 
         private HistSim histsim;
 
-        private long lastp = 0;
+        private double lastp;
 
         private List<PendingOrder> OrderHistory = new List<PendingOrder>();
 
@@ -49,7 +49,7 @@ namespace Quantler.Backtester
 
         private long PlayTo = MultiSimImpl.Endsim;
 
-        private PortfolioManager portfolio = null;
+        private PortfolioManager portfolio;
 
         private SimBroker SimBroker;
 
@@ -57,7 +57,7 @@ namespace Quantler.Backtester
 
         private DateTime Stopped = DateTime.MaxValue;
 
-        private int TicksProcessed = 0;
+        private int TicksProcessed;
 
         private Dictionary<Trade, PendingOrder> TradeMutations = new Dictionary<Trade, PendingOrder>();
 
@@ -208,15 +208,13 @@ namespace Quantler.Backtester
                     OnMessage(this, "Portfolio threw exception: - " + ex.Message + Environment.NewLine + ex.StackTrace);
             }
 
-            long percent = (long)(((TicksProcessed / (double)histsim.TicksPresent) * 59));
-            if (percent != lastp)
+            double percent = Math.Round((histsim.FilesProcessed / (double)histsim.FilesPresent) * 100);
+            if (percent > lastp)
             {
                 //Update percentage
                 if (OnProgress != null)
-                    OnProgress(this, string.Format("Progress: {0}, ROI: {1}%, DD: {2}", percent, portfolio.Results.ROI, portfolio.Results.MaxDDPortfolio), 0);
+                    OnProgress(this, string.Format("Progress: {0}%, ROI: {1}%, DD: {2}", percent, portfolio.Results.ROI, portfolio.Results.MaxDDPortfolio), 0);
                 lastp = percent;
-
-                //Push changed percentage to the database async
             }
         }
 
