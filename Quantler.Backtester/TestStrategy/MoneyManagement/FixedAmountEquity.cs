@@ -40,7 +40,7 @@ internal class FixedAmountEquity : MoneyManagementTemplate
             return;
 
         //Get current stop order
-        var currentstop = Portfolio.PendingOrders.FirstOrDefault(x => x.Order.Symbol == pendingorder.Order.Symbol &&
+        var currentstop = Agent.PendingOrders.FirstOrDefault(x => x.Order.Symbol == pendingorder.Order.Symbol &&
                     (x.Order.Type == OrderType.Stop || x.Order.Type == OrderType.StopLimit));
 
         //Check if we have a stop order, cannot determine the risk without it

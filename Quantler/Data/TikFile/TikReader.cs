@@ -261,7 +261,7 @@ namespace Quantler.Data.TikFile
                 ZipEntry e = zip[filename];
                 e.Extract(toreturn);
             }
-            toreturn.Position = 0;
+            toreturn.Seek(0, SeekOrigin.Begin);
             return toreturn;
         }
 

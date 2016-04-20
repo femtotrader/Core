@@ -1,6 +1,5 @@
-#region License
 /*
-Copyright Quantler BV, based on original code copyright Tradelink.org. 
+Copyright Quantler BV, based on original code copyright Tradelink.org.
 This file is released under the GNU Lesser General Public License v3. http://www.gnu.org/copyleft/lgpl.html
 
 This library is free software; you can redistribute it and/or
@@ -13,18 +12,17 @@ but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 Lesser General Public License for more details.
 */
-#endregion
 
 using NLog;
 using Quantler.Data.TikFile;
 using Quantler.Interfaces;
+using Quantler.Securities;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Threading;
-using Quantler.Securities;
 
 namespace Quantler.Simulator
 {
@@ -46,28 +44,30 @@ namespace Quantler.Simulator
 
         private const int Completed = -1;
         private const string Tickext = TikConst.WildcardExt;
+        private readonly Dictionary<string, TickFileInfo> _fileInfos = new Dictionary<string, TickFileInfo>();
         private readonly ILogger _log = LogManager.GetCurrentClassLogger();
-        private readonly List<SimWorker> _workers = new List<SimWorker>();
         private readonly int _yieldtime = 1;
         private int _availticks;
         private int _cachepause = 10;
-        private int[] _cidx;
+        private int _currentindex;
         private int _executions;
         private TickFileFilter _filter = new TickFileFilter();
 
         // working variables
         private string _folder = string.Empty;
 
-        private int[] _idx;
         private bool _inited;
         private bool _lastorderok = true;
         private long _lasttime = long.MinValue;
+        private int _nextindex;
         private long _nextticktime = Endsim;
         private bool _orderok = true;
+        private int _readcache = 15;
         private long _simend;
         private long _simstart;
         private volatile int _tickcount;
         private string[] _tickfiles = new string[0];
+        private List<SimWorker> _workers = new List<SimWorker>();
 
         #endregion Private Fields
 
@@ -184,6 +184,10 @@ namespace Quantler.Simulator
         public void Initialize()
         {
             if (_inited) return; // only init once
+
+            //Clear current data
+            _fileInfos.Clear();
+
             if (_tickfiles.Length == 0)
             {
                 // get our listings of historical files (idx and epf)
@@ -191,38 +195,23 @@ namespace Quantler.Simulator
                 _tickfiles = _filter.Allows(files);
             }
 
-            // now we have our list, initialize instruments from files
-            for (int i = 0; i < _tickfiles.Length; i++)
-            {
-                try
-                {
-                    SecurityImpl s = GetSecurity(i);
-                    if ((s != null) && s.IsValid && s.HistSource.IsValid)
-                        _workers.Add(new SimWorker(s));
-                }
-                catch (Exception ex)
-                {
-                    D("Unable to initialize: " + _tickfiles[i] + " error: " + ex.Message + ex.StackTrace);
-                }
-            }
-            // setup our initial index
-            _idx = Genidx(_workers.Count);
-            _cidx = new int[_workers.Count];
+            //Check for cache size
+            if (_tickfiles.Length < _readcache)
+                _readcache = _tickfiles.Length;
 
-            D("Initialized " + _tickfiles.Length + " tik files.");
-            V(string.Join(Environment.NewLine, _tickfiles));
-            
+            // now we have our list, initialize initial instruments from file
+            for (int i = 0; i < _tickfiles.Length; i++)
+                _fileInfos.Add(_tickfiles[i], Util.ParseFile(_tickfiles[i]));
+
+            // setup our initial index
+            _currentindex = 0;
+
             // read in single tick just to get first time for user
+            InitializeAhead(_readcache);
             FillCache(1);
 
-            // get total ticks represented by files
-            _availticks = 0;
-            foreach (SimWorker t in _workers)
-                if (t.Workersec != null)
-                    _availticks += t.Workersec.ApproxTicks;
-
-            D("Approximately " + TicksPresent + " ticks to process...");
             _inited = true;
+
             // set first time as hint for user
             Setnexttime();
         }
@@ -332,37 +321,48 @@ namespace Quantler.Simulator
             }
         }
 
-        private void FillCacheSingleCore(int readhead)
-        {
-            // loop through instruments and read 'readahead' ticks in advance
-            foreach (SimWorker t in _workers)
-                t.SingleCoreFillCache(readhead);
-        }
-
         private void FlushCache(long endsim)
         {
             bool simrunning = true;
+            var times = Nexttimes();
+            _currentindex = times.ElementAt(0).Key;
+            long nexttime = times.Count() > 1 ? times.ElementAt(1).Value : long.MaxValue;
             while (simrunning)
             {
                 // get next times of ticks in cache
-                long[] times = Nexttimes();
+                if (!_workers[_currentindex].HasTicks || _workers[_currentindex].NextTime() > nexttime)
+                {
+                    times = Nexttimes();
 
-                // copy our master index list into a temporary for sorting
-                Buffer.BlockCopy(_idx, 0, _cidx, 0, _idx.Length * 4);
+                    //Check if we are finished
+                    if (times.Count() == 1 && times.ElementAt(0).Value == Completed)
+                    {
+                        V("No ticks left.");
+                        break;
+                    }
 
-                // sort loaded instruments by time
-                // TODO: come up with a faster sort algorithm to speed up backtesting (what if we do not need to sort?)
-                // Everything above this statement should be above the while loop to increase speed
-                Array.Sort(times, _cidx);
-                int nextidx = 0;
+                    nexttime = times.Count() > 1 ? times.ElementAt(1).Value : long.MaxValue;
+
+                    //Reset current index to earliest item
+                    _currentindex = times.ElementAt(0).Key;
+                }
 
                 // get next time from all instruments we have loaded
-                while ((nextidx < times.Length) && (times[nextidx] == -1))
-                    nextidx++;
+                while (times.ElementAt(0).Value == -1)
+                {
+                    //Request next file
+                    InitializeAhead(1);
+
+                    //Refresh times
+                    times = Nexttimes();
+
+                    //Set new element
+                    _currentindex = times.ElementAt(0).Key;
+                }
 
                 // test to see if ticks left in simulation
-                bool ticksleft = nextidx < times.Length;
-                bool simtimeleft = ticksleft && (times[nextidx] <= endsim);
+                bool ticksleft = _nextindex <= _tickfiles.Length && _workers[_currentindex].HasTicks;
+                bool simtimeleft = ticksleft && times.ElementAt(_currentindex).Value <= endsim;
                 simrunning = ticksleft && simtimeleft;
 
                 // if no ticks left or we exceeded simulation time, quit
@@ -377,7 +377,7 @@ namespace Quantler.Simulator
                 }
 
                 // get next tick
-                Tick k = _workers[_cidx[nextidx]].NextTick();
+                Tick k = _workers[_currentindex].NextTick();
 
                 // time check
                 _orderok &= k.Datetime >= _lasttime;
@@ -396,61 +396,16 @@ namespace Quantler.Simulator
 
                 // count tick
                 _tickcount++;
-
-                // update timescale
-                // times[nextidx] = Workers[cidx[nextidx]].hasTicks ? Workers[cidx[nextidx]].NextTime() : COMPLETED;
             }
             V("simulating exiting.");
         }
 
-        private void FlushCacheSingleCore(long endsim)
-        {
-            bool simrunning = true;
-            while (simrunning)
-            {
-                // get next ticks
-                FillCacheSingleCore(1);
-
-                // get next times of ticks in cache
-                long[] times = Nexttimes();
-
-                // copy our master index list into a temporary for sorting
-                Buffer.BlockCopy(_idx, 0, _cidx, 0, _idx.Length * 4);
-
-                // sort loaded instruments by time
-                Array.Sort(times, _cidx);
-                int nextidx = 0;
-
-                // get next time from all instruments we have loaded
-                while ((nextidx < times.Length) && (times[nextidx] == -1))
-                    nextidx++;
-
-                // test to see if ticks left in simulation
-                simrunning = (nextidx < times.Length) && (times[nextidx] <= endsim);
-
-                // if no ticks left or we exceeded simulation time, quit
-                if (!simrunning)
-                    break;
-
-                // get next tick
-                Tick k = _workers[_cidx[nextidx]].NextTick();
-
-                // notify tick
-                if (GotTick != null) GotTick(k);
-
-                // count tick
-                _tickcount++;
-            }
-        }
-
-        private static int[] Genidx(int length)
-        {
-            int[] idx = new int[length]; for (int i = 0; i < length; i++) idx[i] = i; return idx;
-        }
-
         private SecurityImpl GetSecurity(int tickfileidx)
         {
-            return GetSecurity(_tickfiles[tickfileidx]);
+            if (tickfileidx < _tickfiles.Length)
+                return GetSecurity(_tickfiles[tickfileidx]);
+            else
+                return null;
         }
 
         private SecurityImpl GetSecurity(string file)
@@ -476,58 +431,113 @@ namespace Quantler.Simulator
             }
         }
 
-        private long[] Nexttimes()
+        private void InitializeAhead(int files)
+        {
+            //Dispose and clear memory by removing old and unused files
+            if (_inited)
+                RemoveLastUnusedReader();
+
+            //Check for correct amount input
+            if (_workers.Count < _readcache)
+                files = _readcache - _workers.Count;
+            else if (_workers.Count >= _readcache)
+                files = 0;
+
+            if (_nextindex + files > _fileInfos.Count)
+                files = _fileInfos.Count - _nextindex + 1;
+
+            // now we have our list, initialize instruments from files
+            int max = files + _nextindex > _tickfiles.Length ? _tickfiles.Length : files + _nextindex;
+            for (int i = _nextindex; i < max; i++)
+            {
+                try
+                {
+                    SecurityImpl s = GetSecurity(_nextindex);
+                    if ((s != null) && s.IsValid && s.HistSource.IsValid)
+                        _workers.Add(new SimWorker(s));
+
+                    _nextindex++;
+                }
+                catch (Exception ex)
+                {
+                    D("Unable to initialize: " + _tickfiles[i] + " error: " + ex.Message + ex.StackTrace);
+                }
+            }
+
+            // log currently read files
+            _log.Debug("Initialized " + files + " tik files.");
+            _log.Debug(string.Join(Environment.NewLine, _tickfiles));
+            int ticksfound = _workers.Skip(_workers.Count - files).Sum(x => x.Workersec.ApproxTicks);
+            _log.Debug("ApproxTicks: {0}", ticksfound);
+            _availticks += ticksfound;
+
+            //Read ahead
+            if (files > 0)
+                FillCache(Int32.MaxValue);
+        }
+
+        /// <summary>
+        /// Returns an ordered list of next times for the workers currently active
+        /// </summary>
+        /// <returns></returns>
+        private IEnumerable<KeyValuePair<int, long>> Nexttimes()
         {
             // setup a next entry for every instrument
-            long[] times = new long[_workers.Count];
+            Dictionary<int, long> toreturn = new Dictionary<int, long>();
+            int timesidx = 0;
 
             // loop through instrument's next time, set flag if no more ticks left in cache
-            for (int i = 0; i < times.Length; i++)
+            int amount = _readcache;
+            if (_readcache >= 15)
+                amount = _readcache / 3;
+            foreach (var file in _workers.Take(amount))
             {
                 // loop until worker has ticks
-                while (!_workers[i].HasTicks)
+                while (!file.HasTicks)
                 {
                     // or the worker is done reading tick stream
-                    if (!_workers[i].IsWorking)
+                    if (!file.IsWorking)
                     {
                         break;
                     }
-                    
+
                     // if we're not done, wait for the I/O thread to catch up
                     Thread.Sleep(_yieldtime);
                 }
-                
+
                 // we should either have ticks or be finished with this worker, set the value of
                 // this worker's next time value accordingly
-                times[i] = _workers[i].HasTicks ? _workers[i].NextTime() : Completed;
+                toreturn.Add(timesidx, file.HasTicks ? file.NextTime() : Completed);
+                timesidx++;
             }
-            return times;
+
+            return toreturn.OrderBy(x => x.Value);
+        }
+
+        /// <summary>
+        /// Close old and unused readers (clears memory for new files)
+        /// </summary>
+        private void RemoveLastUnusedReader()
+        {
+            var found = _workers.Where(x => !x.HasTicks).ToArray();
+            foreach (var key in found)
+                _workers.Remove(key);
         }
 
         private void SecurityPlayTo(long ftime)
         {
-            // see if we can truely thread or not
-            if (Environment.ProcessorCount > 1)
-            {
-                // start all the workers reading files in background
-                FillCache(int.MaxValue);
+            // start all the workers reading files in background
+            FillCache(int.MaxValue);
 
-                // wait a moment to allow tick reading to start
-                Thread.Sleep(_cachepause);
+            // wait a moment to allow tick reading to start
+            Thread.Sleep(_cachepause);
 
-                // continuously loop through next ticks, playing most recent ones, until simulation
-                // end is reached.
-                FlushCache(ftime);
+            // continuously loop through next ticks, playing most recent ones, until simulation
+            // end is reached.
+            FlushCache(ftime);
 
-                // when we end simulation, stop reading but don't touch buffer
-                CancelWorkers();
-            }
-            else // if we're a single core machine, add some delays
-            {
-                // continuously loop through next ticks sequentially, playing most recent ones,
-                // until simulation end is reached.
-                FlushCacheSingleCore(ftime);
-            }
+            // when we end simulation, stop reading but don't touch buffer
+            CancelWorkers();
 
             // set next tick time as hint to user
             Setnexttime();
@@ -538,15 +548,16 @@ namespace Quantler.Simulator
         private void Setnexttime()
         {
             // get next times of ticks in cache
-            long[] times = Nexttimes();
+            var times = Nexttimes();
             int i = 0;
 
             // get first one available
-            while ((i < times.Length) && (times[i] == Completed))
-                i++;
+            foreach (var item in times)
+                if ((i < times.Count()) && (item.Value == Completed))
+                    i++;
 
             // set next time to first available time, or end of simulation if none available
-            _nextticktime = i == times.Length ? Endsim : times[i];
+            _nextticktime = i == times.Count() ? Endsim : times.ElementAt(i).Value;
         }
 
         private void V(string msg)

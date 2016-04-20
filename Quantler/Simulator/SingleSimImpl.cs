@@ -1,6 +1,5 @@
-#region License
 /*
-Copyright Quantler BV, based on original code copyright Tradelink.org. 
+Copyright Quantler BV, based on original code copyright Tradelink.org.
 This file is released under the GNU Lesser General Public License v3. http://www.gnu.org/copyleft/lgpl.html
 
 This library is free software; you can redistribute it and/or
@@ -13,19 +12,18 @@ but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 Lesser General Public License for more details.
 */
-#endregion
 
 using NLog;
 using Quantler.Broker;
 using Quantler.Data.Ticks;
 using Quantler.Data.TikFile;
 using Quantler.Interfaces;
+using Quantler.Securities;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
-using Quantler.Securities;
 
 namespace Quantler.Simulator
 {
@@ -46,14 +44,13 @@ namespace Quantler.Simulator
 
         #region Private Fields
 
-        private static readonly ILogger Log = LogManager.GetCurrentClassLogger();
         private const string Tickext = TikConst.WildcardExt;
+        private static readonly ILogger Log = LogManager.GetCurrentClassLogger();
         private readonly SimBroker _broker = new SimBroker();
-        private readonly List<long> _dates = new List<long>();
-        private readonly List<SecurityImpl> _secs = new List<SecurityImpl>();
+        private readonly List<SecurityImpl> _securityfiles = new List<SecurityImpl>();
         private int _availticks;
-        private int _cidx;
-        private int _doneidx;
+        private int _currentindex;
+        private int _doneindex;
         private int _executions;
         private TickFileFilter _filter = new TickFileFilter();
 
@@ -72,6 +69,8 @@ namespace Quantler.Simulator
         private long _simstart;
         private volatile int _tickcount;
         private string[] _tickfiles = new string[0];
+        private const int _cacheahead = 5;
+        private Dictionary<string, TickFileInfo> _fileInfos;
 
         #endregion Private Fields
 
@@ -187,53 +186,41 @@ namespace Quantler.Simulator
         public void Initialize()
         {
             if (_inited) return; // only init once
+
+            //Clear current data
+            _securityfiles.Clear();
+
             if (_tickfiles.Length == 0)
             {
                 // get our listings of historical files (idx and epf)
                 string[] files = Directory.GetFiles(_folder, Tickext);
                 _tickfiles = _filter.Allows(files);
             }
-            List<long> d = new List<long>(_tickfiles.Length);
-            List<SecurityImpl> ss = new List<SecurityImpl>(_tickfiles.Length);
-            // now we have our list, initialize instruments from files
-            for (int i = 0; i < _tickfiles.Length; i++)
-            {
-                SecurityImpl s = getsec(i);
-                if ((s != null) && s.IsValid && s.HistSource.IsValid)
-                {
-                    s.HistSource.GotTick += HistSource_gotTick;
-                    ss.Add(s);
-                    d.Add(s.Date);
-                }
-            }
-            // setup our initial index
-            long[] didx = d.ToArray();
-            SecurityImpl[] sidx = ss.ToArray();
-            Array.Sort(didx, sidx);
-            // save index and objects in order
-            _secs.Clear();
-            _dates.Clear();
-            _secs.AddRange(sidx);
-            _dates.AddRange(didx);
-            _doneidx = _tickfiles.Length - 1;
 
-            Log.Debug("Initialized " + _tickfiles.Length + " instruments.");
-            Log.Debug(string.Join(Environment.NewLine, _tickfiles));
+            _fileInfos = new Dictionary<string, TickFileInfo>();
+            // get dates
+            for (int i = 0; i < _tickfiles.Length; i++)
+                _fileInfos.Add(_tickfiles[i], Util.ParseFile(_tickfiles[i]));
+
+            // setup our initial index (order all files by dates)
+            _tickfiles = _fileInfos.OrderBy(x => x.Value.Date).Select(x => x.Key).ToArray();
+
+            // save index and objects in order
+            _doneindex = _tickfiles.Length - 1;
+
+            // initialize initial files (readahead x number of files)
+            InitializeAhead(_cacheahead);
+
             // check for event
             if (GotTick != null)
                 _hasevent = true;
             else
                 Log.Debug("No GotTick event defined!");
+
             // read in single tick just to get first time for user
             Isnexttick();
 
-            // get total ticks represented by files
-            _availticks = 0;
-            for (int i = 0; i < _secs.Count; i++)
-                if (_secs[i] != null)
-                    _availticks += _secs[i].ApproxTicks;
-
-            Log.Debug("Approximately " + TicksPresent + " ticks to process...");
+            //Done for now
             _inited = true;
         }
 
@@ -258,6 +245,7 @@ namespace Quantler.Simulator
                 }
             }
             else throw new Exception("Histsim was unable to initialize");
+
             // mark end of simulation
             _simend = DateTime.Now.Ticks;
         }
@@ -272,8 +260,8 @@ namespace Quantler.Simulator
             _simend = 0;
             _inited = false;
             _tickfiles = new string[0];
-            _dates.Clear();
-            _secs.Clear();
+            _fileInfos.Clear();
+            _securityfiles.Clear();
             _nextticktime = Startsim;
             _broker.Reset();
             _executions = 0;
@@ -296,6 +284,45 @@ namespace Quantler.Simulator
         private SecurityImpl getsec(int tickfileidx)
         {
             return getsec(_tickfiles[tickfileidx]);
+        }
+
+        private void InitializeAhead(int files)
+        {
+            if (_currentindex + files > _doneindex)
+                files = _doneindex - _currentindex + 1;
+
+            // now we have our list, initialize instruments from files
+            for (int i = _currentindex; i < files + _currentindex; i++)
+            {
+                SecurityImpl s = getsec(i);
+                if ((s != null) && s.IsValid && s.HistSource.IsValid)
+                {
+                    s.HistSource.GotTick += HistSource_gotTick;
+                    _securityfiles.Add(s);
+                }
+            }
+
+            // log currently read files
+            Log.Debug("Initialized " + files + " instruments.");
+            Log.Debug(string.Join(Environment.NewLine, _tickfiles));
+            int ticksfound = _securityfiles.Skip(_securityfiles.Count - files).Sum(x => x.ApproxTicks);
+            Log.Debug("ApproxTicks: {0}", ticksfound);
+            _availticks += ticksfound;
+
+            //Dispose and clear memory by removing old and unused files
+            if(_currentindex > 0)
+                CloseUnusedReaders(_currentindex - files, _currentindex - 1);
+        }
+
+        /// <summary>
+        /// Close old and unused readers (clears memory for new files)
+        /// </summary>
+        /// <param name="from"></param>
+        /// <param name="to"></param>
+        private void CloseUnusedReaders(int from, int to)
+        {
+            for (int i = from; i < to; i++)
+                _securityfiles[i].HistSource.Close();
         }
 
         private SecurityImpl getsec(string file)
@@ -321,8 +348,6 @@ namespace Quantler.Simulator
             }
         }
 
-        #endregion Private Methods
-
         private void HistSource_gotTick(Tick t)
         {
             // process next tick if present
@@ -334,7 +359,7 @@ namespace Quantler.Simulator
                 if (_hasevent && GotTick != null)
                     GotTick(_next);
                 // update last time
-                _orderok &= _lasttick || (t.Datetime >= _next.Datetime) || (_cidx != _next.Symidx);
+                _orderok &= _lasttick || (t.Datetime >= _next.Datetime) || (_currentindex != _next.Symidx);
             }
             if (_lasttick)
             {
@@ -343,7 +368,7 @@ namespace Quantler.Simulator
             }
             // update next tick
             _next = (TickImpl)t;
-            _next.Symidx = _cidx;
+            _next.Symidx = _currentindex;
             _hasnext = true;
             _nextticktime = t.Datetime;
             _tickcount++;
@@ -351,15 +376,21 @@ namespace Quantler.Simulator
 
         private bool Isnexttick()
         {
-            if (_cidx > _doneidx || _cidx >= _secs.Count)
+            if (_currentindex > _doneindex || _currentindex >= _securityfiles.Count)
             {
                 _lasttick = true;
                 HistSource_gotTick(null);
                 return false;
             }
-            if (!_secs[_cidx].NextTick())
-                _cidx++;
+            if (!_securityfiles[_currentindex].NextTick())
+            {
+                _currentindex++;
+                if (_currentindex % _cacheahead == 0)
+                    InitializeAhead(_cacheahead);
+            }
             return true;
         }
+
+        #endregion Private Methods
     }
 }
