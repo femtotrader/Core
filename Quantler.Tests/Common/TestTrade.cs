@@ -18,6 +18,7 @@ Lesser General Public License for more details.
 
 using Quantler.Trades;
 using System;
+using FluentAssertions;
 using Xunit;
 
 namespace Quantler.Tests.Common
@@ -31,16 +32,16 @@ namespace Quantler.Tests.Common
         public void Construction()
         {
             TradeImpl t = new TradeImpl("TST", 10, 100, DateTime.Now);
-            Assert.True(t.IsValid, t.ToString());
-            Assert.True(t.IsFilled, t.ToString());
+            t.IsValid.Should().BeTrue(t.ToString());
+            t.IsFilled.Should().BeTrue(t.ToString());
 
             //midnight check
             t.Xdate = 20081205;
             t.Xtime = 0;
-            Assert.True(t.IsValid);
+            t.IsValid.Should().BeTrue();
             t.Xtime = 0;
             t.Xdate = 0;
-            Assert.True(!t.IsValid);
+            t.IsValid.Should().BeFalse();
         }
 
         [Fact]
@@ -48,8 +49,8 @@ namespace Quantler.Tests.Common
         public void Defaults()
         {
             TradeImpl t = new TradeImpl();
-            Assert.True(!t.IsValid, t.ToString());
-            Assert.True(!t.IsFilled, t.ToString());
+            t.IsValid.Should().BeFalse(t.ToString());
+            t.IsFilled.Should().BeFalse(t.ToString());
         }
 
         #endregion Public Methods

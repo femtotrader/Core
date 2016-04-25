@@ -504,11 +504,8 @@ namespace Quantler.Simulator
                 }
             }
 
-            // log currently read files
-            _log.Debug("Initialized " + files + " tik files.");
-            _log.Debug(string.Join(Environment.NewLine, _tickfiles));
+            // log ticks found
             int ticksfound = _workers.Skip(_workers.Count - files).Sum(x => x.Workersec.ApproxTicks);
-            _log.Debug("ApproxTicks: {0}", ticksfound);
             _availticks += ticksfound;
 
             //Read ahead

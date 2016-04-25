@@ -21,6 +21,7 @@ using Quantler.Interfaces;
 using Quantler.Tracker;
 using Quantler.Trades;
 using System;
+using FluentAssertions;
 using Quantler.Securities;
 using Xunit;
 
@@ -248,6 +249,27 @@ namespace Quantler.Tests.Common
             pl = p.Adjust(new TradeImpl(t4));
             Assert.True(pl == (84 - 80) * 100);
             Assert.True(p.IsFlat);
+        }
+
+        [Fact]
+        [Trait("Quantler.Common", "Quantler")]
+        public void AdjustedDateTime()
+        {
+            // long
+            string s = "IBM";
+            ForexSecurity ts = new ForexSecurity(s);
+            ts.LotSize = 1;
+            ts.PipValue = 1;
+            ts.PipSize = 1;
+
+            IAccount account = new SimAccount("TEST");
+            account.Securities.AddSecurity(ts);
+
+            TradeImpl t1 = new TradeImpl(s, 80, 100, dt);
+            t1.Account = account;
+            t1.Security = ts;
+            PositionImpl p = new PositionImpl(t1);
+            p.LastModified.Should().BeAfter(DateTime.MinValue);
         }
 
         #endregion Public Methods

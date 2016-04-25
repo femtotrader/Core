@@ -50,7 +50,10 @@ namespace Quantler.Tests.Common
             tsec.PipValue = 1;
             tsec.PipSize = 1;
 
-            SimBroker broker = new SimBroker();
+            SimAccount account = new SimAccount("TEST", "testing", 1000M, 100, "SIM");
+            account.Securities.AddSecurity(tsec);
+
+            SimBroker broker = new SimBroker(account, _trans);
             broker.BrokerModel = _trans;
             broker.GotFill += broker_GotFill;
             broker.GotOrder += broker_GotOrder;
@@ -76,7 +79,7 @@ namespace Quantler.Tests.Common
 
             broker.SendOrderStatus(po);
             Assert.Equal(0, broker.Execute(TickImpl.NewTrade(S, 10, 100)));
-            Assert.True(_fills == 1); // redudant but for counting
+            Assert.True(_fills == 1); // redundant but for counting
 
             // test that limit order is filled inside the market
             Assert.Equal(1, broker.Execute(TickImpl.NewTrade(S, 8, 100)));

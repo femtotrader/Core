@@ -16,6 +16,7 @@ Lesser General Public License for more details.
 */
 #endregion
 
+using System;
 using Quantler.Broker;
 using Quantler.Interfaces;
 using Quantler.Securities;
@@ -35,7 +36,7 @@ namespace Quantler.Tests.Common
         {
             string s = "IBM";
             ForexSecurity ts = new ForexSecurity(s);
-            IAccount account = new SimAccount("TEST");
+            IAccount account = new SimAccount("TEST", "testing", 1000M, 100, "SIM");
             account.Securities.AddSecurity(ts);
 
             TradeImpl t1 = new TradeImpl(s, 100, 100);
@@ -184,7 +185,6 @@ namespace Quantler.Tests.Common
             pt.NewPosition(p);
             Assert.Equal(500, pt[s].Size);
         }
-
         #endregion Public Methods
     }
 }

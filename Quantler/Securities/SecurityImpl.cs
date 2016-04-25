@@ -146,9 +146,9 @@ namespace Quantler.Securities
         }
 
         /// <summary>
-        /// full name of security including all options
+        /// Name of the broker for this security
         /// </summary>
-        public string BrokerName { get { return ToString(); } }
+        public string BrokerName { get; set; }
 
         /// <summary>
         /// whether security has a exchange
@@ -182,7 +182,7 @@ namespace Quantler.Securities
         public DateTime LastTickEvent
         {
             get;
-            private set;
+            set;
         }
 
         public int LotSize
@@ -194,7 +194,7 @@ namespace Quantler.Securities
         /// <summary>
         /// symbol associated with security
         /// </summary>
-        public virtual string Name { get { return _sym; } set { _sym = value; } }
+        public string Name { get { return _sym; } set { _sym = value; } }
 
         public decimal OrderMinQuantity
         {

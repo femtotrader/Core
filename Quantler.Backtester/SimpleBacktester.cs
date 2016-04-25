@@ -195,9 +195,6 @@ namespace Quantler.Backtester
                 //Check if this symbol is subscribed
                 if (portfolio.Streams.ContainsKey(t.Symbol))
                 {
-                    //Set last tick event date time
-                    ((ForexSecurity)portfolio.Securities[t.Symbol]).LastTickEvent = t.TickDateTime;
-
                     //Set got tick for portfolio
                     portfolio.GotTick(tick);
                 }

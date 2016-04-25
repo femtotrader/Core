@@ -241,7 +241,7 @@ namespace Quantler.Tests.Common
         public void MaxDD()
         {
             const string sym = "TST";
-            SimAccount account = new SimAccount("TEST");
+            SimAccount account = new SimAccount("TEST", "testing", 1000M, 100, "SIM");
             ForexSecurity sec = new ForexSecurity(sym);
             sec.PipValue = 1;
             sec.LotSize = 1;

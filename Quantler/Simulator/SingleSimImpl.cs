@@ -317,10 +317,7 @@ namespace Quantler.Simulator
             }
 
             // log currently read files
-            Log.Debug("Initialized " + files + " instruments.");
-            Log.Debug(string.Join(Environment.NewLine, _tickfiles));
             int ticksfound = _securityfiles.Skip(_securityfiles.Count - files).Sum(x => x.ApproxTicks);
-            Log.Debug("ApproxTicks: {0}", ticksfound);
             _availticks += ticksfound;
 
             //Dispose and clear memory by removing old and unused files

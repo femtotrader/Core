@@ -69,7 +69,7 @@ namespace Quantler.Broker
             _startingbalance = startingbalance;
             Leverage = leverage;
 
-            _securities = new SecurityTracker<ForexSecurity>(name);
+            _securities = new SecurityTracker<SecurityImpl>(name);
             _currentpositions = new PositionTracker(this);
             _pipvalueconversionsymbols = Util.GetPipValueSymbolCrosses(Currency);
             _positionvalueconversionsymbols = Util.GetPositionValueSymbolCrosses(Currency);
@@ -244,16 +244,22 @@ namespace Quantler.Broker
 
         public void OnTick(Tick t)
         {
+            //Get tick security
+            SecurityImpl sec = (SecurityImpl)_securities[t.Symbol];
+
+            //update last tick time
+            sec.LastTickEvent = t.TickDateTime;
+
             if (_priceinformation.ContainsKey(t.Symbol))
             {
                 _priceinformation[t.Symbol] = t;
 
                 //Update security info
-                ForexSecurity sec = (ForexSecurity)_securities[t.Symbol];
                 UpdateSecurity(t, sec);
             }
             else
                 _priceinformation.Add(t.Symbol, t);
+
         }
 
         public override string ToString()
@@ -265,7 +271,7 @@ namespace Quantler.Broker
 
         #region Private Methods
 
-        private void UpdateSecurity(Tick t, ForexSecurity sec)
+        private void UpdateSecurity(Tick t, SecurityImpl sec)
         {
             if (sec == null || !t.IsValid)
                 return;
@@ -284,7 +290,10 @@ namespace Quantler.Broker
             {
                 if (_priceinformation.ContainsKey(conversionsymbol))
                 {
+                    //get current price based on tick received
                     decimal price = _priceinformation[conversionsymbol].IsFullQuote ? _priceinformation[conversionsymbol].Bid : _priceinformation[conversionsymbol].Trade;
+
+                    //convert to pip value
                     sec.PipValue = sec.PipSize / price * sec.LotSize;
                 }
                 else if (conversionsymbol == "USDUSD")

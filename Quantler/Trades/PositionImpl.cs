@@ -79,6 +79,7 @@ namespace Quantler.Trades
             _trades = new List<Trade>();
             if (!IsValid)
                 throw new Exception("Can't construct invalid position!");
+            _lastadjust = security.LastTickEvent;
         }
 
         public PositionImpl(Trade t)
@@ -92,6 +93,7 @@ namespace Quantler.Trades
             Account = t.Account;
             _trades = new List<Trade> { t };
             if (_size > 0) _size *= t.Direction == Direction.Long ? 1 : -1;
+            _lastadjust = Util.ToDateTime(t.Xdate, t.Xtime);
         }
 
         #endregion Public Constructors

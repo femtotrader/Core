@@ -194,10 +194,7 @@ namespace Quantler
             {
                 toreturn.Add("EURJPY", "USDJPY");
                 toreturn.Add("AUDJPY", "USDJPY");
-                toreturn.Add("AUDNZD", "USDNZD");
                 toreturn.Add("AUDUSD", "USDUSD");
-                toreturn.Add("CADJPY", "USDJPY");
-                toreturn.Add("CHFJPY", "USDJPY");
                 toreturn.Add("EURGBP", "USDGBP");
                 toreturn.Add("EURUSD", "USDUSD");
                 toreturn.Add("GBPJPY", "USDJPY");
@@ -207,7 +204,6 @@ namespace Quantler
                 toreturn.Add("USDCHF", "USDCHF");
                 toreturn.Add("USDJPY", "USDJPY");
                 toreturn.Add("EURCHF", "USDCHF");
-                toreturn.Add("USDGBP", "USDUSD");
                 toreturn.Add("USDNZD", "USDUSD");
             }
 
@@ -229,8 +225,6 @@ namespace Quantler
                 toreturn.Add("AUDJPY", "AUDUSD");
                 toreturn.Add("AUDNZD", "AUDUSD");
                 toreturn.Add("AUDUSD", "AUDUSD");
-                toreturn.Add("CADJPY", "CADUSD");
-                toreturn.Add("CHFJPY", "CHFUSD");
                 toreturn.Add("EURGBP", "EURUSD");
                 toreturn.Add("EURUSD", "EURUSD");
                 toreturn.Add("GBPJPY", "GBPUSD");
@@ -240,8 +234,6 @@ namespace Quantler
                 toreturn.Add("USDCHF", "USDUSD");
                 toreturn.Add("USDJPY", "USDUSD");
                 toreturn.Add("EURCHF", "EURUSD");
-                toreturn.Add("USDGBP", "USDUSD");
-                toreturn.Add("USDNZD", "USDUSD");
             }
 
             return toreturn;
