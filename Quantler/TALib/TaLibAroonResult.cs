@@ -22,8 +22,8 @@ namespace Quantler.TALib
     {
         #region Internal Constructors
 
-        internal TaLibAroonResult(double[] plusresult, double[] minresult, Core.RetCode ret)
-            : base(plusresult, ret)
+        internal TaLibAroonResult(double[] plusresult, double[] minresult, Core.RetCode ret, int index)
+            : base(plusresult, ret, index)
         {
             Up = plusresult;
             Down = minresult;

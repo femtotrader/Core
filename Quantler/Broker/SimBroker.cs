@@ -569,10 +569,12 @@ namespace Quantler.Broker
         /// <returns></returns>
         private StatusType CheckOrderIntegrity(PendingOrder o)
         {
-            PendingOrderImpl porder = (PendingOrderImpl)o;
+            //Check if order size is correct
+            if (o.Order.Size % o.Order.Security.OrderStepSize != 0)
+                return StatusType.ORDER_INVALID_VOLUME;
 
             //Check if size is correct
-            return porder.OrderStatus;
+            return StatusType.OK;
         }
 
         /// <summary>
@@ -621,7 +623,7 @@ namespace Quantler.Broker
         private void HandleOrderUpdate(PendingOrder pendingorder)
         {
             //Check if order exists
-            PendingOrder currentorder = null;
+            PendingOrderImpl currentorder = null;
             PendingOrderImpl changedorder = (PendingOrderImpl)pendingorder;
 
             var account = pendingorder.Account ?? Default;
@@ -636,7 +638,7 @@ namespace Quantler.Broker
 
             foreach (var po in masterorders)
                 if (po.OrderId == pendingorder.OrderId)
-                    currentorder = po;
+                    currentorder = (PendingOrderImpl)po;
 
             //Check if we could find this order
             if (currentorder == null)
@@ -645,6 +647,16 @@ namespace Quantler.Broker
                 changedorder.OrderStatus = StatusType.ORDER_NOT_FOUND;
                 return;
             }
+
+            //Check order integrity
+            var result = CheckOrderIntegrity(currentorder);
+            if (result != StatusType.OK)
+            {
+                currentorder.OrderStatus = result;
+                currentorder.Cancel();
+                return;
+            }
+
             //Check if we need to remove this order
             if (!pendingorder.Order.IsValid || pendingorder.IsCancelled)
                 pendingorder.Cancel();

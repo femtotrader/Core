@@ -14,28 +14,26 @@ Lesser General Public License for more details.
 */
 #endregion
 
-using TicTacTec.TA.Library;
+using FluentAssertions;
+using Xunit;
 
-namespace Quantler.TALib
+namespace Quantler.Tests.Common
 {
-    /// <summary>
-    /// Normal talibresult with a single value
-    /// </summary>
-    public class TaLibSingleResult : TaLibResult
+    public class TestPendingOrder
     {
-        #region Public Constructors
+        #region Public Methods
 
-        public TaLibSingleResult(double[] Result, Core.RetCode ret, int index)
-            : base(Result, ret, index)
+        [Fact]
+        [Trait("Quantler.Common", "Quantler")]
+        public void IncorrectSizeUpdate()
         {
+            //Arrange
+
+            //Act
+
+            //Assert
         }
 
-        #endregion Public Constructors
-
-        #region Public Properties
-
-        public double[] Result { get { return result; } }
-
-        #endregion Public Properties
+        #endregion Public Methods
     }
 }

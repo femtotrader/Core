@@ -59,6 +59,7 @@
       <HintPath>..\packages\FluentAssertions.4.3.2\lib\net45\FluentAssertions.Core.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Microsoft.CSharp" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -93,10 +94,12 @@
     <Compile Include="Common\TestMultiSim.cs" />
     <Compile Include="Common\TestOrder.cs" />
     <Compile Include="Common\TestParameter.cs" />
+    <Compile Include="Common\TestPendingOrder.cs" />
     <Compile Include="Common\TestPosition.cs" />
     <Compile Include="Common\TestPositionTracker.cs" />
     <Compile Include="Common\TestRandomSymbol.cs" />
     <Compile Include="Common\TestRandomTicks.cs" />
+    <Compile Include="Common\TestReflectionInvoke.cs" />
     <Compile Include="Common\TestResults.cs" />
     <Compile Include="Common\TestSecurity.cs" />
     <Compile Include="Common\TestSingleSim.cs" />

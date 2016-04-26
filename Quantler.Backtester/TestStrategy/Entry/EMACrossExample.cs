@@ -63,12 +63,6 @@ internal class EMACrossExample : EntryTemplate
             EnterShort();
         else
             NoEntry();
-
-        //Charting information on the dashboard
-        UpdateChart("EMAFAST", ChartType.Bar, emafast.Result.CurrentValue);
-        UpdateChart("EMASLOW", ChartType.Bar, emaslow.Result.CurrentValue);
-        UpdateChart("DD", ChartType.Line, Agent.Results.MaxDD);
-        UpdateChart("ROI", ChartType.Line, Agent.Results.ROI);
     }
 
     #endregion Public Methods

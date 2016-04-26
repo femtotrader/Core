@@ -105,7 +105,7 @@ namespace Quantler.Trades
         public decimal AvgPrice { get { return _price; } } //TODO: should be weighted average price, based on active trades
 
         public Direction Direction { get { return Size == 0 ? Direction.Flat : Size > 0 ? Direction.Long : Direction.Short; } }
-        public decimal FlatQuantity { get { return FlatSize / Security.LotSize; } }
+        public decimal FlatQuantity { get { return (decimal)FlatSize / Security.LotSize; } }
         public int FlatSize { get { return _size * -1; } }
         public decimal GrossPnL { get { return _closedpl; } }
 
@@ -121,7 +121,7 @@ namespace Quantler.Trades
         public DateTime LastModified { get { return _lastadjust; } }
         public decimal NetPnL { get { return GrossPnL - TotalCommission + TotalSwap; } }
         public decimal Price { get { return _price; } }
-        public decimal Quantity { get { return Size / Security.LotSize; } }
+        public decimal Quantity { get { return (decimal)Size / Security.LotSize; } }
         public ISecurity Security { get; private set; }
         public int Size { get { return _size; } }
         public decimal TotalCommission { get { return Trades.Sum(x => x.Commission); } }

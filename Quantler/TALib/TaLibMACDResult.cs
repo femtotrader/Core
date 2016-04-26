@@ -25,8 +25,8 @@ namespace Quantler.TALib
     {
         #region Internal Constructors
 
-        internal TaLibMacdResult(double[] line, double[] signal, double[] histogram, Core.RetCode ret)
-            : base(line, ret)
+        internal TaLibMacdResult(double[] line, double[] signal, double[] histogram, Core.RetCode ret, int index)
+            : base(line, ret, index)
         {
             MacdHistogram = histogram;
             MacdLine = line;

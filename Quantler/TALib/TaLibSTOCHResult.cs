@@ -25,8 +25,8 @@ namespace Quantler.TALib
     {
         #region Internal Constructors
 
-        internal TaLibStochResult(double[] kResult, double[] dResult, Core.RetCode ret)
-            : base(kResult, ret)
+        internal TaLibStochResult(double[] kResult, double[] dResult, Core.RetCode ret, int index)
+            : base(kResult, ret, index)
         {
             KResult = kResult;
             DResult = dResult;

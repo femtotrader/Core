@@ -81,18 +81,18 @@ namespace Quantler.Indicators
             decimal current = Compute.Invoke(bar);
 
             //Add new value
-            _tavalues.Insert(0, (double)current);
+            _tavalues.Add((double)current);
 
             //Clean up old values
             if (_tavalues.Count > Period * 3)
-                _tavalues.RemoveRange(Period * 3, _tavalues.Count - (Period * 3));
+                _tavalues.RemoveRange(0, Period);
 
             //Calculate the indicator
             var calced = _ta.ChandeMomOsc(_tavalues.ToArray(), Period);
 
             //Add to current values
             if (calced.IsValid)
-                Result[0] = (decimal)calced.CurrentValue;
+                Result[0] = (decimal) calced.CurrentValue;
         }
 
         #endregion Public Methods
@@ -105,7 +105,7 @@ namespace Quantler.Indicators
             Period = period;
             BarSize = barSize;
             Compute = comp ?? (x => x.Close);
-            DataStreams = new DataStream[] { stream };
+            DataStreams = new[] { stream };
         }
 
         #endregion Private Methods

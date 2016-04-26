@@ -41,10 +41,10 @@ namespace Quantler.Tests.Indicators
         [Trait("Quantler.Indicator", "Quantler")]
         public void ComparisonTest()
         {
-            Util.TestIndicator(_sut, "condiv", new[] { "Histogram", "Line", "Signal" }, (indicator, results) =>
+            Util.TestIndicator(_sut, "condiv", new[] { "Line", "Histogram", "Signal" }, (indicator, results) =>
             {
-                var HistogramExpected = Math.Abs(Math.Round(results[0], 5));
-                var LineExpected = Math.Abs(Math.Round(results[1], 5));
+                var LineExpected = Math.Abs(Math.Round(results[0], 5));
+                var HistogramExpected = Math.Abs(Math.Round(results[1], 5));
                 var SignalExpected = Math.Abs(Math.Round(results[2], 5));
 
                 Math.Abs(Math.Round(indicator.Histogram.CurrentValue, 5)).Should().BeInRange(HistogramExpected * .99M, HistogramExpected * 1.01M);

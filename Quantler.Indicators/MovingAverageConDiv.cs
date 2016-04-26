@@ -94,7 +94,7 @@ namespace Quantler.Indicators
 
             //Clean up old values
             if (_tavalues.Count > Period * 3)
-                _tavalues.RemoveRange(Period * 3, _tavalues.Count - (Period * 3));
+                _tavalues.RemoveRange(0, Period);
 
             //Calculate the indicator
             var calced = _ta.Macd(_tavalues.ToArray(), FastPeriod, SlowPeriod, SignalPeriod);
@@ -102,9 +102,9 @@ namespace Quantler.Indicators
             //Add to current values
             if (calced.IsValid)
             {
-                _line[0] = (decimal)calced.MacdLine[0];
-                _histogram[0] = (decimal)calced.MacdHistogram[0];
-                _signal[0] = (decimal)calced.MacdSignal[0];
+                _line[0] = (decimal)calced.MacdLine[calced.Index - 1];
+                _histogram[0] = (decimal)calced.MacdHistogram[calced.Index - 1];
+                _signal[0] = (decimal)calced.MacdSignal[calced.Index - 1];
             }
         }
 
@@ -117,7 +117,7 @@ namespace Quantler.Indicators
             _timeSpan = barSize;
             BarSize = barSize;
             Compute = comp ?? (x => x.Close);
-            DataStreams = new DataStream[] { stream };
+            DataStreams = new[] { stream };
             SlowPeriod = slowperiod;
             FastPeriod = fastperiod;
             _histogram = new IndicatorDataSerie();

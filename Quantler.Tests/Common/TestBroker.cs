@@ -49,6 +49,7 @@ namespace Quantler.Tests.Common
             tsec.LotSize = 1;
             tsec.PipValue = 1;
             tsec.PipSize = 1;
+            tsec.OrderStepSize = 1;
 
             SimAccount account = new SimAccount("TEST", "testing", 1000M, 100, "SIM");
             account.Securities.AddSecurity(tsec);
@@ -94,6 +95,7 @@ namespace Quantler.Tests.Common
             broker.BrokerModel = _trans;
             ForexSecurity tsec = new ForexSecurity(S);
             tsec.LotSize = 1;
+            tsec.OrderStepSize = 1;
             const decimal p1 = 10m;
             const decimal p2 = 11m;
             const int x = 100;
@@ -154,6 +156,7 @@ namespace Quantler.Tests.Common
             const string s = "TST";
             ForexSecurity tsec = new ForexSecurity(s);
             tsec.LotSize = 1;
+            tsec.OrderStepSize = 1;
 
             OrderImpl day = new OrderImpl(tsec, Direction.Long, 200);
             PendingOrderImpl pday = new PendingOrderImpl(day);
@@ -181,6 +184,7 @@ namespace Quantler.Tests.Common
             const string s = "SPY";
             ForexSecurity tsec = new ForexSecurity(s);
             tsec.LotSize = 1;
+            tsec.OrderStepSize = 1;
 
             // OHLC for 6/21/2012 on SPY
             TickImpl openingTick = TickImpl.NewTrade(s, Util.ToQLDate(DateTime.Now), Util.QL2FT(9, 30, 00, 000), 135.67m, 10670270, "NYS");
@@ -235,6 +239,7 @@ namespace Quantler.Tests.Common
             const string s = "SPY";
             ForexSecurity tsec = new ForexSecurity(s);
             tsec.LotSize = 1;
+            tsec.OrderStepSize = 1;
 
             OrderImpl limitBuy = new OrderImpl(tsec, Direction.Long, 1, 133m);
             OrderImpl limitSell = new OrderImpl(tsec, Direction.Short, 1, 133.5m);
@@ -287,6 +292,7 @@ namespace Quantler.Tests.Common
             const string s = "TST";
             ForexSecurity tsec = new ForexSecurity(s);
             tsec.LotSize = 1;
+            tsec.OrderStepSize = 1;
 
             OrderImpl moc = new OrderImpl(tsec, Direction.Long, 200);
             moc.ValidInstruct = OrderInstructionType.MOC;
@@ -314,6 +320,7 @@ namespace Quantler.Tests.Common
             const string sym = "TST";
             ForexSecurity tsec = new ForexSecurity(sym);
             tsec.LotSize = 1;
+            tsec.OrderStepSize = 1;
 
             const string me = "tester";
             const string other = "anotherguy";
@@ -360,6 +367,8 @@ namespace Quantler.Tests.Common
             const string s = "NYS";
             ForexSecurity tsec = new ForexSecurity(s);
             tsec.LotSize = 1;
+            tsec.OrderStepSize = 1;
+
             // build and send an OPG order
             OrderImpl opg = new OrderImpl(tsec, Direction.Long, 200, 10);
             PendingOrderImpl popg = new PendingOrderImpl(opg);

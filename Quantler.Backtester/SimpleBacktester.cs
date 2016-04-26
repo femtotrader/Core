@@ -71,7 +71,7 @@ namespace Quantler.Backtester
             {
                 //Set start time
                 Started = DateTime.Now;
-                var transactioncosts = new GenericBrokerModel() { CommPerLot = 6.35M, SlippageInPips = 2.3M, LatencyInMS = 125, SpreadInPips = 2.5M };
+                var transactioncosts = new GenericBrokerModel() { CommPerLot = 0M, SlippageInPips = 0M, LatencyInMS = 0, SpreadInPips = 0M };
                 SimBroker = new SimBroker((SimAccount)nsystem.Account, transactioncosts);
 
                 //Initialize
@@ -296,7 +296,7 @@ namespace Quantler.Backtester
             {
                 var oldpo = OrderHistory[i];
                 string line = string.Format("{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10},{11},{12},{13},{14},{15}",
-                    oldpo.OrderId, oldpo.Order.Created.Date.ToShortDateString(), oldpo.Order.Created.TimeOfDay.ToString(), oldpo.Order.Security.Name, oldpo.Order.Direction.ToString(), oldpo.Order.Size, oldpo.Order.LimitPrice, oldpo.Order.Comment,
+                    oldpo.OrderId, oldpo.Order.Created.Date.ToShortDateString(), oldpo.Order.Created.TimeOfDay, oldpo.Order.Security.Name, oldpo.Order.Direction, oldpo.Order.Size, oldpo.Order.LimitPrice, oldpo.Order.Comment,
                     oldpo.Order.Type, oldpo.Order.Direction, oldpo.Order.LimitPrice, oldpo.Order.StopPrice, oldpo.Order.Size, oldpo.Order.Quantity, oldpo.OrderStatus, oldpo.IsCancelled);
                 wr.WriteLine(line);
             }

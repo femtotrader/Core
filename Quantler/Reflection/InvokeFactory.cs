@@ -32,9 +32,11 @@ namespace Quantler.Reflection
         /// Invoke all actions that return values
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        /// <typeparam name="RT"></typeparam>
+        /// <typeparam name="T2"></typeparam>
+        /// <typeparam name="TRt"></typeparam>
         /// <param name="actions"></param>
         /// <param name="data"></param>
+        /// <param name="seconddata"></param>
         public void InvokeAll<T, T2, TRt>(List<InvokeLinkFunc<T, T2, TRt>> actions, T data, T2 seconddata)
         {
             foreach (var item in actions)
@@ -45,7 +47,7 @@ namespace Quantler.Reflection
         /// Invoke all actions that return values
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        /// <typeparam name="RT"></typeparam>
+        /// <typeparam name="TRt"></typeparam>
         /// <param name="actions"></param>
         /// <param name="data"></param>
         public void InvokeAll<T, TRt>(List<InvokeLinkFunc<T, TRt>> actions, T data)
@@ -55,7 +57,7 @@ namespace Quantler.Reflection
         }
 
         /// <summary>
-        /// Invoke mehtod with 2 parameters
+        /// Invoke method with 2 parameters
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <typeparam name="T2"></typeparam>
@@ -116,7 +118,6 @@ namespace Quantler.Reflection
             if (filterInclude != null)
                 toinvoke = toinvoke.Where(x => x.BaseType == filterInclude);
 
-            //Parallel.Invoke(toinvoke.Select(x => x.Action).ToArray());
             foreach (var item in toinvoke)
                 item.Action.Invoke();
         }

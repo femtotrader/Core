@@ -44,7 +44,7 @@ namespace Quantler.TALib
                 period, out begin, out length, output);
 
             //Return the return object
-            return new TaLibSingleResult(output, retCode);
+            return new TaLibSingleResult(output, retCode, length);
         }
 
         /// <summary>
@@ -66,7 +66,7 @@ namespace Quantler.TALib
                 period, out begin, out length, downs, ups);
 
             //Return the return object
-            return new TaLibAroonResult(ups, downs, retCode);
+            return new TaLibAroonResult(ups, downs, retCode, length);
         }
 
         /// <summary>
@@ -87,7 +87,7 @@ namespace Quantler.TALib
                 period, out begin, out length, result);
 
             //Return the return object
-            return new TaLibSingleResult(result, retCode);
+            return new TaLibSingleResult(result, retCode, length);
         }
 
         /// <summary>
@@ -111,7 +111,7 @@ namespace Quantler.TALib
             Core.RetCode retCode = Core.Bbands(0, input.Length - 1 - offset, input, period, sdUp, sdLow, (Core.MAType)maType, out begin, out length, upperBand, middleBand, lowerBand);
 
             //Return the return object
-            return new TaLibBandResult(upperBand, middleBand, lowerBand, retCode);
+            return new TaLibBandResult(upperBand, middleBand, lowerBand, retCode, length);
         }
 
         /// <summary>
@@ -132,7 +132,7 @@ namespace Quantler.TALib
             Core.RetCode retCode = Core.Bop(0, high.Length - 1 - offset, open, high, low, close, out begin, out length, result);
 
             //Return the return object
-            return new TaLibSingleResult(result, retCode);
+            return new TaLibSingleResult(result, retCode, length);
         }
 
         /// <summary>
@@ -153,7 +153,7 @@ namespace Quantler.TALib
             Core.RetCode retCode = Core.Cci(0, high.Length - 1 - offset, high, low, close, period, out begin, out length, result);
 
             //Return the return object
-            return new TaLibSingleResult(result, retCode);
+            return new TaLibSingleResult(result, retCode, length);
         }
 
         /// <summary>
@@ -173,7 +173,7 @@ namespace Quantler.TALib
                 period, out begin, out length, output);
 
             //Return the return object
-            return new TaLibSingleResult(output, retCode);
+            return new TaLibSingleResult(output, retCode, length);
         }
 
         /// <summary>
@@ -209,7 +209,7 @@ namespace Quantler.TALib
             Core.MinusDM(0, high.Length - 1 - offset, high, low,
                 period, out begin, out length, minoutput);
 
-            return new TaLibDmiResult(plusoutput, minoutput, retCode);
+            return new TaLibDmiResult(plusoutput, minoutput, retCode, length);
         }
 
         /// <summary>
@@ -231,7 +231,7 @@ namespace Quantler.TALib
                 period, out begin, out length, output);
 
             //Return the return object
-            return new TaLibSingleResult(output, retCode);
+            return new TaLibSingleResult(output, retCode, length);
         }
 
         /// <summary>
@@ -276,7 +276,7 @@ namespace Quantler.TALib
                 period, (Core.MAType)maType, out begin, out length, output);
 
             //Return the return object
-            return new TaLibSingleResult(output, retCode);
+            return new TaLibSingleResult(output, retCode, length);
         }
 
         /// <summary>
@@ -299,7 +299,7 @@ namespace Quantler.TALib
             Core.RetCode retCode = Core.Macd(0, input.Length - 1 - offset, input,
                 fastperiod, slowperiod, signalperiod, out begin, out length, macdline, macdsignal, macdhisto);
 
-            return new TaLibMacdResult(macdline, macdsignal, macdhisto, retCode);
+            return new TaLibMacdResult(macdline, macdsignal, macdhisto, retCode, length);
         }
 
         /// <summary>
@@ -331,7 +331,7 @@ namespace Quantler.TALib
                 period, out begin, out length, output);
 
             //Return the return object
-            return new TaLibSingleResult(output, retCode);
+            return new TaLibSingleResult(output, retCode, length);
         }
 
         /// <summary>
@@ -351,7 +351,7 @@ namespace Quantler.TALib
                 period, out begin, out length, output);
 
             //Return the return object
-            return new TaLibSingleResult(output, retCode);
+            return new TaLibSingleResult(output, retCode, length);
         }
 
         /// <summary>
@@ -371,7 +371,7 @@ namespace Quantler.TALib
                 period, out begin, out length, output);
 
             //Return the return object
-            return new TaLibSingleResult(output, retCode);
+            return new TaLibSingleResult(output, retCode, length);
         }
 
         /// <summary>
@@ -392,7 +392,7 @@ namespace Quantler.TALib
             Core.RetCode retCode = Core.Sar(0, high.Length - 1 - offset, high, low, acc, max, out begin, out length, output);
 
             //Return the return object
-            return new TaLibSingleResult(output, retCode);
+            return new TaLibSingleResult(output, retCode, length);
         }
 
         /// <summary>
@@ -431,7 +431,7 @@ namespace Quantler.TALib
             Core.RetCode retCode = Core.Stoch(0, high.Length - 1 - offset, high, low, close,
                 fastperiod, slowperiod, matype, slowDperiod, matype, out begin, out length, outputK, outputD);
 
-            return new TaLibStochResult(outputK, outputD, retCode);
+            return new TaLibStochResult(outputK, outputD, retCode, length);
         }
 
         /// <summary>
@@ -487,7 +487,7 @@ namespace Quantler.TALib
             Core.RetCode retCode = Core.TrueRange(0, high.Length - 1 - offset, high, low, close, out begin, out length, output);
 
             //Return the return object
-            return new TaLibSingleResult(output, retCode);
+            return new TaLibSingleResult(output, retCode, length);
         }
 
         /// <summary>
@@ -510,7 +510,7 @@ namespace Quantler.TALib
                 period, out begin, out length, output);
 
             //Return the return object
-            return new TaLibSingleResult(output, retCode);
+            return new TaLibSingleResult(output, retCode, length);
         }
 
         /// <summary>

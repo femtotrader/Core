@@ -15,7 +15,6 @@ Lesser General Public License for more details.
 #endregion
 
 using Quantler.Interfaces;
-using Quantler.TALib;
 using System;
 using System.Collections.Generic;
 
@@ -25,11 +24,10 @@ namespace Quantler.Indicators
     {
         #region Private Fields
 
-        private readonly List<double> _close = new List<double>();
-        private readonly List<double> _high = new List<double>();
-        private readonly List<double> _low = new List<double>();
+        private readonly List<decimal> _close = new List<decimal>();
+        private readonly List<decimal> _high = new List<decimal>();
+        private readonly List<decimal> _low = new List<decimal>();
         private readonly IndicatorDataSerie _result = new IndicatorDataSerie();
-        private readonly TaLib _ta = new TaLib();
         private TimeSpan _timeSpan;
 
         #endregion Private Fields
@@ -66,19 +64,29 @@ namespace Quantler.Indicators
                 return;
 
             //Add new values
-            _high.Insert(0, (double)bar.High);
-            _low.Insert(0, (double)bar.Low);
-            _close.Insert(0, (double)bar.Close);
+            _high.Insert(0, bar.High);
+            _low.Insert(0, bar.Low);
+            _close.Insert(0, bar.Close);
 
             //Clean up old values
             Cleanup();
 
+            //Check if we have enough values
+            if (_close.Count == 1)
+            {
+                Result[0] = bar.High - bar.Low;
+                return;
+            }
+
             //Calculate the indicator
-            var calced = _ta.TrueRange(_high.ToArray(), _low.ToArray(), _close.ToArray());
+            //Get true range
+            decimal hl = bar.High - bar.Low;
+            decimal Hcp = Math.Abs(bar.High - _close[1]);
+            decimal Lcp = Math.Abs(bar.Low - _close[1]);
+            decimal tr = Math.Max(Math.Max(hl, Hcp), Lcp);
 
             //Add to current values
-            if (calced.IsValid)
-                Result[0] = (decimal)calced.CurrentValue;
+            Result[0] = tr;
         }
 
         #endregion Public Methods
@@ -89,9 +97,9 @@ namespace Quantler.Indicators
         {
             if (_close.Count > Period * 3)
             {
-                _close.RemoveRange(Period * 3, _close.Count - (Period * 3));
-                _high.RemoveRange(Period * 3, _high.Count - (Period * 3));
-                _low.RemoveRange(Period * 3, _low.Count - (Period * 3));
+                _close.RemoveRange(0, Period);
+                _high.RemoveRange(0, Period);
+                _low.RemoveRange(0, Period);
             }
         }
 
@@ -99,7 +107,7 @@ namespace Quantler.Indicators
         {
             _timeSpan = barSize;
             BarSize = barSize;
-            DataStreams = new DataStream[] { stream };
+            DataStreams = new[] { stream };
             Period = 1;
         }
 

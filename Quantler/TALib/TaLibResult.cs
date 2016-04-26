@@ -14,6 +14,7 @@ Lesser General Public License for more details.
 */
 #endregion
 
+using System.Linq;
 using TicTacTec.TA.Library;
 
 namespace Quantler.TALib
@@ -30,14 +31,20 @@ namespace Quantler.TALib
         /// </summary>
         private readonly Core.RetCode _ret;
 
+        /// <summary>
+        /// Index of results
+        /// </summary>
+        public readonly int Index = 0;
+
         #endregion Private Fields
 
         #region Internal Constructors
 
-        internal TaLibResult(double[] result, Core.RetCode ret)
+        internal TaLibResult(double[] result, Core.RetCode ret, int index)
         {
             _ret = ret;
             this.result = result;
+            this.Index = index;
         }
 
         #endregion Internal Constructors
@@ -52,7 +59,7 @@ namespace Quantler.TALib
             get
             {
                 if (IsValid)
-                    return result[0];
+                    return result[Index - 1];
                 return 0;
             }
         }
@@ -60,7 +67,7 @@ namespace Quantler.TALib
         /// <summary>
         /// Check if the calculated values are valid
         /// </summary>
-        public bool IsValid { get { return _ret == Core.RetCode.Success && result != null && result[0] != 0; } }
+        public bool IsValid { get { return _ret == Core.RetCode.Success && result != null && Index > 0; } }
 
         /// <summary>
         /// Get the lenght of the returned result
@@ -72,7 +79,7 @@ namespace Quantler.TALib
         #region Protected Properties
 
         /// <summary>
-        /// Get the array of returned values, most recent first = 0
+        /// Get the array of returned values, most recent last = index
         /// </summary>
         protected double[] result { get; private set; }
 

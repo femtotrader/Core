@@ -25,8 +25,8 @@ namespace Quantler.TALib
     {
         #region Internal Constructors
 
-        internal TaLibDmiResult(double[] plusresult, double[] minresult, Core.RetCode ret)
-            : base(plusresult, ret)
+        internal TaLibDmiResult(double[] plusresult, double[] minresult, Core.RetCode ret, int index)
+            : base(plusresult, ret, index)
         {
             PlusDmi = plusresult;
             MinDmi = minresult;

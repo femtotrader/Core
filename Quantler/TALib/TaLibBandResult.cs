@@ -22,8 +22,8 @@ namespace Quantler.TALib
     {
         #region Internal Constructors
 
-        internal TaLibBandResult(double[] upperResult, double[] middleBand, double[] lowerResult, Core.RetCode ret)
-            : base(upperResult, ret)
+        internal TaLibBandResult(double[] upperResult, double[] middleBand, double[] lowerResult, Core.RetCode ret, int index)
+            : base(upperResult, ret, index)
         {
             UpperBand = upperResult;
             LowerBand = lowerResult;

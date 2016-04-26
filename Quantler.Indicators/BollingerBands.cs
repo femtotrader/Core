@@ -28,7 +28,7 @@ namespace Quantler.Indicators
 
         private readonly List<double> _input = new List<double>();
         private MovingAverageType _maType;
-        private double _sdUp, _sdDown = 0;
+        private double _sdUp, _sdDown;
         private readonly TaLib _ta = new TaLib();
         private TimeSpan _timeSpan;
         private IndicatorDataSerie _upperBand, _middleBand, _lowerBand;
@@ -39,17 +39,17 @@ namespace Quantler.Indicators
 
         public BollingerBands(int period, double sdUp, double sdDown, DataStream stream, TimeSpan barSize)
         {
-            Construct(stream, barSize, sdUp, sdDown, null, MovingAverageType.Simple);
+            Construct(period, stream, barSize, sdUp, sdDown, null, MovingAverageType.Simple);
         }
 
         public BollingerBands(int period, double sdUp, double sdDown, DataStream stream, TimeSpan barSize, MovingAverageType maType)
         {
-            Construct(stream, barSize, sdUp, sdDown, null, maType);
+            Construct(period, stream, barSize, sdUp, sdDown, null, maType);
         }
 
         public BollingerBands(int period, double sdUp, double sdDown, DataStream stream, TimeSpan barSize, MovingAverageType maType, Func<Bar, decimal> compute)
         {
-            Construct(stream, barSize, sdUp, sdDown, compute, maType);
+            Construct(period, stream, barSize, sdUp, sdDown, compute, maType);
         }
 
         #endregion Public Constructors
@@ -87,7 +87,7 @@ namespace Quantler.Indicators
                 return;
 
             //Add new values
-            _input.Insert(0, (double)Compute.Invoke(bar));
+            _input.Add((double)Compute.Invoke(bar));
 
             //Clean up old values
             Cleanup();
@@ -98,9 +98,9 @@ namespace Quantler.Indicators
             //Add to current values
             if (calced.IsValid)
             {
-                _upperBand[0] = (decimal)calced.UpperBand[0];
-                _lowerBand[0] = (decimal)calced.LowerBand[0];
-                _middleBand[0] = (decimal)calced.MiddleBand[0];
+                _upperBand[0] = (decimal)calced.UpperBand[calced.Index - 1];
+                _lowerBand[0] = (decimal)calced.LowerBand[calced.Index - 1];
+                _middleBand[0] = (decimal)calced.MiddleBand[calced.Index - 1];
             }
         }
 
@@ -112,14 +112,15 @@ namespace Quantler.Indicators
         {
             if (_input.Count > Period * 3)
             {
-                _input.RemoveRange(Period * 3, _input.Count - (Period * 3));
+                _input.RemoveRange(0, Period);
             }
         }
 
-        private void Construct(DataStream stream, TimeSpan barSize, double sdUp, double sdDown, Func<Bar, decimal> compute, MovingAverageType maType)
+        private void Construct(int period, DataStream stream, TimeSpan barSize, double sdUp, double sdDown, Func<Bar, decimal> compute, MovingAverageType maType)
         {
             _timeSpan = barSize;
-            DataStreams = new DataStream[] { stream };
+            Period = period;
+            DataStreams = new[] { stream };
             _maType = maType;
             Compute = compute ?? (x => (x.Close));
             _sdUp = sdUp;

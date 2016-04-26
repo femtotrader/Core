@@ -83,8 +83,8 @@ namespace Quantler.Indicators
             decimal currentLow = ComputeLow.Invoke(bar);
 
             //Add new values
-            _high.Insert(0, (double)currentHigh);
-            _low.Insert(0, (double)currentLow);
+            _high.Add((double)currentHigh);
+            _low.Add((double)currentLow);
 
             //Clean up old values
             Cleanup();
@@ -95,8 +95,8 @@ namespace Quantler.Indicators
             //Add to current values
             if (calced.IsValid)
             {
-                _upResult[0] = (decimal)calced.Up[0];
-                _downResult[0] = (decimal)calced.Down[0];
+                _upResult[0] = (decimal)calced.Up[calced.Index - 1];
+                _downResult[0] = (decimal)calced.Down[calced.Index - 1];
             }
         }
 
@@ -108,8 +108,8 @@ namespace Quantler.Indicators
         {
             if (_high.Count > Period * 3)
             {
-                _high.RemoveRange(Period * 3, _high.Count - (Period * 3));
-                _low.RemoveRange(Period * 3, _low.Count - (Period * 3));
+                _high.RemoveRange(0, Period);
+                _low.RemoveRange(0, Period);
             }
         }
 
@@ -118,9 +118,9 @@ namespace Quantler.Indicators
             _timeSpan = barSize;
             Period = period;
             BarSize = barSize;
-            DataStreams = new DataStream[] { stream };
+            DataStreams = new[] { stream };
             Compute = computeLow ?? (x => x.Low);
-            ComputeHigh = ComputeHigh ?? (x => x.High);
+            ComputeHigh = computeHigh ?? (x => x.High);
         }
 
         #endregion Private Methods

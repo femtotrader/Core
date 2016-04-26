@@ -37,8 +37,6 @@ namespace Quantler.Tests.Indicators
         public static void TestIndicator<T>(T indicator, string filename, string[] targetColumns, Action<T, decimal[]> valuecheck)
             where T : Indicator
         {
-            // assumes the Date is in the first index
-
             bool first = true;
             List<int> targetindexes = new List<int>();
 

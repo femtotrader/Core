@@ -28,10 +28,10 @@ internal class ExampleTradingAgent : TradingAgent
     /// <param name="p"></param>
     public ExampleTradingAgent(EMACrossExample e, FixedPositionSizing p)
     {
-        e.slowperiod = 100;
-        e.fastperiod = 50;
+        e.slowperiod = 40;
+        e.fastperiod = 15;
 
-        p.FixedSize = 10;
+        p.FixedSize = 1;
     }
 
     #endregion Public Constructors

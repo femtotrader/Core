@@ -40,7 +40,7 @@ internal class FixedPositionSizing : MoneyManagementTemplate
             return;
 
         //Get the size of the position
-        var positionsize = (pendingorder.Order.Quantity * FixedSize) / 100;
+        var positionsize = (pendingorder.Order.Quantity * FixedSize);
 
         //Get current stop order
         var currentstop = Portfolio.PendingOrders.FirstOrDefault(x => x.Order.Symbol == pendingorder.Order.Symbol &&
