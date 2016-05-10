@@ -1,49 +1,23 @@
-﻿#region License
-/*
-Copyright (c) Quantler B.V., All rights reserved.
-
-This library is free software; you can redistribute it and/or
-modify it under the terms of the GNU Lesser General Public
-License as published by the Free Software Foundation; either
-version 3.0 of the License, or (at your option) any later version.
-
-This library is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-Lesser General Public License for more details.
-*/
-#endregion
-
-using Quantler;
+﻿using Quantler;
 using Quantler.Interfaces;
 using Quantler.Interfaces.Indicators;
 using Quantler.Templates;
 
 // EMA CrossOver Entry Example
-internal class EMACrossExample : EntryTemplate
+class EMACrossExample : EntryTemplate
 {
-    #region Private Fields
-
     private ExponentialMovingAverage emafast;
 
     //Private
     private ExponentialMovingAverage emaslow;
 
-    #endregion Private Fields
-
-    #region Public Properties
-
     //Fast EMA period
-    [Parameter(5, 15, 5, "FastEMA")]
+    [Parameter(20, 50, 10, "FastEMA")]
     public int fastperiod { get; set; }
 
     //Slow EMA period
-    [Parameter(20, 40, 10, "SlowEMA")]
+    [Parameter(100, 200, 20, "SlowEMA")]
     public int slowperiod { get; set; }
-
-    #endregion Public Properties
-
-    #region Public Methods
 
     public override void Initialize()
     {
@@ -65,10 +39,6 @@ internal class EMACrossExample : EntryTemplate
             NoEntry();
     }
 
-    #endregion Public Methods
-
-    #region Private Methods
-
     // Check if we are currently long (on our default symbol)
     private bool IsLong()
     {
@@ -80,6 +50,4 @@ internal class EMACrossExample : EntryTemplate
     {
         return Agent.Positions[Agent.Symbol].IsShort;
     }
-
-    #endregion Private Methods
 }

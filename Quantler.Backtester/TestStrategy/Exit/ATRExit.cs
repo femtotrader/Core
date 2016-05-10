@@ -19,18 +19,10 @@ using Quantler.Interfaces.Indicators;
 using Quantler.Templates;
 
 //Use the ATR or Average True Range to determine our exit
-internal class ATRExit : ExitTemplate
+class ATRExit : ExitTemplate
 {
-    #region Private Fields
-
     private AverageTrueRange atr;
-
-    //Privates
     private decimal currentprice;
-
-    #endregion Private Fields
-
-    #region Public Properties
 
     //Define the period at which the ATR is calculated on
     [Parameter(15, 25, 5, "atrperiod")]
@@ -39,10 +31,6 @@ internal class ATRExit : ExitTemplate
     //Define a multiplier to increase the range of the ATR
     [Parameter(1, 2, 1, "multiplier")]
     public int multiplier { get; set; }
-
-    #endregion Public Properties
-
-    #region Public Methods
 
     //Initialize this exit template (runs only once, at our start)
     public override void Initialize()
@@ -72,10 +60,6 @@ internal class ATRExit : ExitTemplate
             ExitShort();
     }
 
-    #endregion Public Methods
-
-    #region Private Methods
-
     //Check if we currently have a position (True = Yes)
     private bool HasPosition()
     {
@@ -93,6 +77,4 @@ internal class ATRExit : ExitTemplate
     {
         return Agent.Positions[Agent.Symbol].IsShort;
     }
-
-    #endregion Private Methods
 }

@@ -35,7 +35,7 @@ namespace Quantler.Interfaces
         DateTime BarDateTime { get; }
 
         /// <summary>
-        /// Type or bar interval amount
+        /// Type of bar interval amount
         /// </summary>
         BarInterval BarInterval { get; }
 

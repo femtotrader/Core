@@ -20,17 +20,11 @@ using Quantler.Templates;
 using System.Linq;
 
 //Use a fixed stop amount to manage new positions
-internal class FixedStop : RiskManagementTemplate
+class FixedStop : RiskManagementTemplate
 {
-    #region Public Properties
-
     //Specify stop amount in pips
     [Parameter(20, 50, 10, "Stop Pips")]
     public int stoppips { get; set; }
-
-    #endregion Public Properties
-
-    #region Public Methods
 
     // Executed before each trade made
     public override bool IsTradingAllowed()
@@ -48,14 +42,16 @@ internal class FixedStop : RiskManagementTemplate
 
         decimal CurrentClose = CurrentBar[pendingOrder.Order.Symbol].Close;
 
+        //Stop size measured in pips
         var pips = pendingOrder.Order.Security.PipSize * stoppips;
 
+        //Get stop price based on the pips stop size
         decimal price = pendingOrder.Order.Direction == Direction.Long ?
                                 CurrentClose - pips :
                                 CurrentClose + pips;
 
         //Cancel any pending stop orders
-        Portfolio.PendingOrders
+        Agent.PendingOrders
                     .Where(x => x.Order.AgentId == Agent.AgentId)
                     .Where(x => x.Order.Symbol == pendingOrder.Order.Symbol &&
                             (x.Order.Type == OrderType.Stop || x.Order.Type == OrderType.StopLimit)).Cancel();
@@ -63,6 +59,4 @@ internal class FixedStop : RiskManagementTemplate
         //Return our current stoporder
         return CreateOrder(pendingOrder.Order.Symbol, Direction.Flat, pendingOrder.Order.Quantity, 0, price);
     }
-
-    #endregion Public Methods
 }

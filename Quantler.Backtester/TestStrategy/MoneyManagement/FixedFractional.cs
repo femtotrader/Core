@@ -20,18 +20,12 @@ using Quantler.Templates;
 using System;
 using System.Linq;
 
-//Fixed positionsizing based on a fixed amount of units
-internal class FixedFractional : MoneyManagementTemplate
+//Fixed fractional positionsizing
+class FixedFractional : MoneyManagementTemplate
 {
-    #region Public Properties
-
     // Determine the fixed fractional percentage 100 = 1% and 200 = 2%
     [Parameter(100, 200, 10, "Fixed Percentage")]
     public int FixedPercentage { get; set; }
-
-    #endregion Public Properties
-
-    #region Public Methods
 
     public void PositionSize(PendingOrder pendingorder, AgentState state)
     {
@@ -40,7 +34,7 @@ internal class FixedFractional : MoneyManagementTemplate
             return;
 
         //Get current stop order
-        var currentstop = Portfolio.PendingOrders.FirstOrDefault(x => x.Order.Symbol == pendingorder.Order.Symbol &&
+        var currentstop = Agent.PendingOrders.FirstOrDefault(x => x.Order.Symbol == pendingorder.Order.Symbol &&
                     (x.Order.Type == OrderType.Stop || x.Order.Type == OrderType.StopLimit));
 
         //Check if we have a stop order, cannot determine the risk without it
@@ -67,6 +61,4 @@ internal class FixedFractional : MoneyManagementTemplate
 
         pendingorder.Update(x => x.Quantity = quantity);
     }
-
-    #endregion Public Methods
 }

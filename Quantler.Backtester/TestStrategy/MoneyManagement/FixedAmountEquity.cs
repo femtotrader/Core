@@ -21,17 +21,11 @@ using System;
 using System.Linq;
 
 //Fixed positionsizing based on a fixed amount of units
-internal class FixedAmountEquity : MoneyManagementTemplate
+class FixedAmountEquity : MoneyManagementTemplate
 {
-    #region Public Properties
-
     // Determine the fixed amount of equity to risk on a trade (250 USD or 500 USD)
     [Parameter(250, 500, 50, "Fixed Equity Risk")]
     public int FixedEquityRisk { get; set; }
-
-    #endregion Public Properties
-
-    #region Public Methods
 
     public void PositionSize(PendingOrder pendingorder, AgentState state)
     {
@@ -67,6 +61,4 @@ internal class FixedAmountEquity : MoneyManagementTemplate
 
         pendingorder.Update(x => x.Quantity = quantity);
     }
-
-    #endregion Public Methods
 }

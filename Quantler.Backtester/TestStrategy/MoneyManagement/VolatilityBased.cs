@@ -21,15 +21,9 @@ using Quantler.Templates;
 using System;
 using System.Linq;
 
-internal class VolatilityBased : MoneyManagementTemplate
+class VolatilityBased : MoneyManagementTemplate
 {
-    #region Private Fields
-
     private AverageTrueRange ATR;
-
-    #endregion Private Fields
-
-    #region Public Properties
 
     // Determine the ATR period to calculate with
     [Parameter(15, 25, 5, "ATR Period")]
@@ -38,10 +32,6 @@ internal class VolatilityBased : MoneyManagementTemplate
     // Determine the fixed fractional percentage 100 = 1% and 200 = 2%
     [Parameter(100, 200, 10, "Fixed Percentage")]
     public int FixedPercentage { get; set; }
-
-    #endregion Public Properties
-
-    #region Public Methods
 
     public override void Initialize()
     {
@@ -55,7 +45,7 @@ internal class VolatilityBased : MoneyManagementTemplate
             return;
 
         //Get current stop order
-        var currentstop = Portfolio.PendingOrders.FirstOrDefault(x => x.Order.Symbol == pendingorder.Order.Symbol &&
+        var currentstop = Agent.PendingOrders.FirstOrDefault(x => x.Order.Symbol == pendingorder.Order.Symbol &&
                     (x.Order.Type == OrderType.Stop || x.Order.Type == OrderType.StopLimit));
 
         //Check if we have a stop order, cannot determine the risk without it
@@ -83,6 +73,4 @@ internal class VolatilityBased : MoneyManagementTemplate
 
         pendingorder.Update(x => x.Quantity = quantity);
     }
-
-    #endregion Public Methods
 }

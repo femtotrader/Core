@@ -18,17 +18,11 @@ using Quantler;
 using Quantler.Templates;
 
 //Use a fixed pip sized amount to exit a currently held position
-internal class FixedTakeProfit : ExitTemplate
+class FixedTakeProfit : ExitTemplate
 {
-    #region Public Properties
-
     //Determine the size in pips before exit
     [Parameter(10, 100, 10, "PipSize")]
     public int PipSize { get; set; }
-
-    #endregion Public Properties
-
-    #region Public Methods
 
     //Calculate on each bar close (default symbol and timeframe)
     public override void OnCalculate()
@@ -49,6 +43,4 @@ internal class FixedTakeProfit : ExitTemplate
         if (pips > PipSize)
             Flatten();
     }
-
-    #endregion Public Methods
 }

@@ -21,17 +21,11 @@ using System;
 using System.Linq;
 
 //Fixed positionsizing based on a fixed amount of units
-internal class FixedPositionSizing : MoneyManagementTemplate
+class FixedPositionSizing : MoneyManagementTemplate
 {
-    #region Public Properties
-
     // Determine the amount of units to trade with
     [Parameter(25, 100, 25, "Fixed Unit Size")]
     public int FixedSize { get; set; }
-
-    #endregion Public Properties
-
-    #region Public Methods
 
     public void PositionSize(PendingOrder pendingorder, AgentState state)
     {
@@ -43,7 +37,7 @@ internal class FixedPositionSizing : MoneyManagementTemplate
         var positionsize = (pendingorder.Order.Quantity * FixedSize);
 
         //Get current stop order
-        var currentstop = Portfolio.PendingOrders.FirstOrDefault(x => x.Order.Symbol == pendingorder.Order.Symbol &&
+        var currentstop = Agent.PendingOrders.FirstOrDefault(x => x.Order.Symbol == pendingorder.Order.Symbol &&
                     (x.Order.Type == OrderType.Stop || x.Order.Type == OrderType.StopLimit));
 
         //See if we need to update our stop order
@@ -57,6 +51,4 @@ internal class FixedPositionSizing : MoneyManagementTemplate
 
         pendingorder.Update(x => x.Quantity = positionsize);
     }
-
-    #endregion Public Methods
 }

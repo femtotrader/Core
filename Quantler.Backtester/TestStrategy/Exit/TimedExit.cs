@@ -16,25 +16,27 @@ Lesser General Public License for more details.
 
 using Quantler;
 using Quantler.Templates;
+using System;
 
 //Use a fixed time event to exit your currently held positions
-internal class TimedExit : ExitTemplate
+class TimedExit : ExitTemplate
 {
-    #region Public Properties
-
     //Determine the time to exit based on a 24 hour integer format (HHMM)
     [Parameter(2100, 2300, 100, "Exit Time")]
     public int ExitTime { get; set; }
 
-    #endregion Public Properties
+    private DateTime exit = DateTime.MinValue;
 
-    #region Public Methods
+    public override void Initialize()
+    {
+        //Set exit time based on hours provided
+        exit = exit.AddHours(Math.Round(ExitTime / 100D));
+    }
 
     public override void OnCalculate()
     {
-        if (CurrentBar[Agent.Symbol].Time >= ExitTime * 100)
+        //If current bar is above or equal to the exit time, exit any position we current have for this agent
+        if (CurrentBar[Agent.Symbol].BarDateTime >= exit)
             Flatten();
     }
-
-    #endregion Public Methods
 }

@@ -152,7 +152,7 @@ namespace Quantler.Agent
         }
 
         /// <summary>
-        /// Default security object assocated to this agent
+        /// Default security object associated to this agent
         /// </summary>
         public ISecurity Security
         {

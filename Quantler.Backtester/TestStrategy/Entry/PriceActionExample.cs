@@ -18,17 +18,11 @@ using Quantler;
 using Quantler.Templates;
 
 // Price action example entry template
-internal class PriceActionExample : EntryTemplate
+class PriceActionExample : EntryTemplate
 {
-    #region Public Properties
-
     //Amount of bars back to look for changes in the market
-    [Parameter(5, 15, 5, "Lookback")]
+    [Parameter(30, 45, 5, "Lookback")]
     public int Period { get; set; }
-
-    #endregion Public Properties
-
-    #region Public Methods
 
     public override void OnCalculate()
     {
@@ -49,21 +43,15 @@ internal class PriceActionExample : EntryTemplate
             NoEntry();
     }
 
-    #endregion Public Methods
-
-    #region Private Methods
-
     //Check if we are currently long on our defualt symbol
     private bool IsLong()
     {
-        return Agent.Portfolio.Positions[Agent.Symbol].IsLong;
+        return Agent.Positions[Agent.Symbol].IsLong;
     }
 
     //Check if we are currently short on our defualt symbol
     private bool IsShort()
     {
-        return Agent.Portfolio.Positions[Agent.Symbol].IsShort;
+        return Agent.Positions[Agent.Symbol].IsShort;
     }
-
-    #endregion Private Methods
 }

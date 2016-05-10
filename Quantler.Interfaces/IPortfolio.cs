@@ -46,7 +46,7 @@ namespace Quantler.Interfaces
         bool IsValid { get; }
 
         /// <summary>
-        /// List of all currently pending orders, present at the broker
+        /// List of all currently pending orders from all trading agents, present at the broker
         /// </summary>
         PendingOrder[] PendingOrders { get; }
 
@@ -61,7 +61,7 @@ namespace Quantler.Interfaces
         Result Results { get; }
 
         /// <summary>
-        /// All subscribed securites
+        /// All subscribed securities
         /// </summary>
         ISecurityTracker Securities { get; }
 

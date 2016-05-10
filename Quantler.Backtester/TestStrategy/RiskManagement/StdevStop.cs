@@ -21,17 +21,11 @@ using System;
 using System.Linq;
 
 //Manage new positions based on a volatility stop
-internal class StdevStop : RiskManagementTemplate
+class StdevStop : RiskManagementTemplate
 {
-    #region Public Properties
-
     //Multiplier to use for the StDev calculation
     [Parameter(1, 4, 1, "multiplier")]
     public int multiplier { get; set; }
-
-    #endregion Public Properties
-
-    #region Public Methods
 
     // We are always allowed to trade
     public override bool IsTradingAllowed()
@@ -47,16 +41,12 @@ internal class StdevStop : RiskManagementTemplate
             return null;
 
         //Cancel any pending stop orders
-        Portfolio.PendingOrders.Where(x => x.Order.Symbol == pendingorder.Order.Symbol &&
+        Agent.PendingOrders.Where(x => x.Order.Symbol == pendingorder.Order.Symbol &&
             (x.Order.Type == OrderType.Stop || x.Order.Type == OrderType.StopLimit)).Cancel();
 
         //Create a flattening stop limit order
         return CreateOrder(pendingorder.Order.Symbol, Direction.Flat, pendingorder.Order.Quantity, 0, StopLevel(pendingorder));
     }
-
-    #endregion Public Methods
-
-    #region Private Methods
 
     //Calculate the StDev
     private double STDEV(decimal[] values)
@@ -87,6 +77,4 @@ internal class StdevStop : RiskManagementTemplate
             CurrentBar[Agent.Symbol].Close - value :
             CurrentBar[Agent.Symbol].Close + value;
     }
-
-    #endregion Private Methods
 }
