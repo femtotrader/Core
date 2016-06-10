@@ -49,6 +49,7 @@ class FixedPositionSizing : MoneyManagementTemplate
         if (!currentpos.IsFlat)
             positionsize += Math.Abs(currentpos.Quantity);
 
+        //Update pending order
         pendingorder.Update(x => x.Quantity = positionsize);
     }
 }

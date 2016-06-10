@@ -59,6 +59,7 @@ class FixedAmountEquity : MoneyManagementTemplate
         if (!currentpos.IsFlat)
             quantity += Math.Abs(currentpos.Quantity);
 
+        //Update pending order
         pendingorder.Update(x => x.Quantity = quantity);
     }
 }

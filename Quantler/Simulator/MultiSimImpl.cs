@@ -51,6 +51,7 @@ namespace Quantler.Simulator
         private int _cachepause = 10;
         private int _currentindex;
         private int _executions;
+        private bool _simrunning;
         private TickFileFilter _filter = new TickFileFilter();
 
         // working variables
@@ -221,6 +222,9 @@ namespace Quantler.Simulator
             for (int i = 0; i < _tickfiles.Length; i++)
                 _fileInfos.Add(_tickfiles[i], Util.ParseFile(_tickfiles[i]));
 
+            // order files according to date
+            _tickfiles = _fileInfos.OrderBy(x => x.Value.Date).Select(x => x.Key).ToArray();
+
             // setup our initial index
             _currentindex = 0;
             FilesPresent = _fileInfos.Count;
@@ -295,6 +299,9 @@ namespace Quantler.Simulator
                     }
                 }
             }
+
+            //end sim
+            _simrunning = false;
         }
 
         #endregion Public Methods
@@ -349,11 +356,11 @@ namespace Quantler.Simulator
         /// <param name="endsim"></param>
         private void FlushCache(long endsim)
         {
-            bool simrunning = true;
+            _simrunning = true;
             var times = Nexttimes();
             _currentindex = times.ElementAt(0).Key;
             long nexttime = times.Count() > 1 ? times.ElementAt(1).Value : long.MaxValue;
-            while (simrunning)
+            while (_simrunning)
             {
                 // get next times of ticks in cache
                 if (!_workers[_currentindex].HasTicks || _workers[_currentindex].NextTime() > nexttime)
@@ -389,15 +396,17 @@ namespace Quantler.Simulator
                 // test to see if ticks left in simulation
                 bool ticksleft = _nextindex <= _tickfiles.Length && _workers[_currentindex].HasTicks;
                 bool simtimeleft = ticksleft && times.ElementAt(_currentindex).Value <= endsim;
-                simrunning = ticksleft && simtimeleft;
+                _simrunning = ticksleft && simtimeleft;
 
                 // if no ticks left or we exceeded simulation time, quit
-                if (!simrunning)
+                if (!_simrunning)
                 {
                     if (!ticksleft)
                         V("No ticks left.");
                     if (!simtimeleft)
                         V("Hit end of simulation.");
+                    else
+                        V("Simulation was stopped");
 
                     break;
                 }

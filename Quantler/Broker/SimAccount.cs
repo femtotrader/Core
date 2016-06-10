@@ -179,13 +179,13 @@ namespace Quantler.Broker
                     if (_positionvalueconversionsymbols.TryGetValue(sym.Name, out basesymbol))
                     {
                         decimal price;
-
-                        if (basesymbol == "USDUSD")
-                            price = 1;
-                        else
+                        
+                        if (_priceinformation.ContainsKey(basesymbol))
                             price = _priceinformation[basesymbol].HasBid ? _priceinformation[basesymbol].Bid : _priceinformation[basesymbol].Trade;
+                        else
+                            price = 1;
 
-                        //Margin = (Trade Size (lot size) / leverage) * account currency exchange rate (if different from the base currency in the pair being traded).
+                        //Margin = (Trade Size / leverage) * account currency exchange rate (if different from the base currency in the pair being traded).
                         toreturn += pos.UnsignedSize / Leverage * price;
                     }
                 }

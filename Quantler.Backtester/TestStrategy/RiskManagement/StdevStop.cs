@@ -73,6 +73,7 @@ class StdevStop : RiskManagementTemplate
             value *= multiplier;                                            //Add multiplier
         }
 
+        // Return stop level
         return pendingorder.Order.Direction == Direction.Long ?
             CurrentBar[Agent.Symbol].Close - value :
             CurrentBar[Agent.Symbol].Close + value;

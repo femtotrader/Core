@@ -15,6 +15,7 @@ Lesser General Public License for more details.
 #endregion
 
 using Quantler;
+using Quantler.Interfaces;
 using Quantler.Templates;
 
 // Price action example entry template
@@ -26,6 +27,10 @@ class PriceActionExample : EntryTemplate
 
     public override void OnCalculate()
     {
+        //Charting
+        UpdateChart("ROI", ChartType.Step, Agent.Results.ROI);
+        UpdateChart("DD", ChartType.Line, Agent.Results.MaxDDPortfolio);
+
         //get bars
         var bars = Agent.Stream[Agent.TimeFrame];
 

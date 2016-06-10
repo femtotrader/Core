@@ -2,14 +2,14 @@
 using Quantler.Interfaces;
 using Quantler.Interfaces.Indicators;
 using Quantler.Templates;
+using System.Linq;
 
 // EMA CrossOver Entry Example
 class EMACrossExample : EntryTemplate
 {
-    private ExponentialMovingAverage emafast;
-
     //Private
     private ExponentialMovingAverage emaslow;
+    private ExponentialMovingAverage emafast;
 
     //Fast EMA period
     [Parameter(20, 50, 10, "FastEMA")]
@@ -28,13 +28,26 @@ class EMACrossExample : EntryTemplate
 
     public override void OnCalculate()
     {
+        //Charting
+        UpdateChart("ROI", ChartType.Step, Agent.Results.ROI);
+        UpdateChart("DD", ChartType.Line, Agent.Results.MaxDDPortfolio);
+
         //Check if the indicators are ready for usage
         if (!emaslow.IsReady || !emafast.IsReady)
+        {
             NoEntry();
+            Agent.Log(LogSeverity.Debug, "No entry (Slow: {0}, Fast: {1})", emaslow.IsReady, emafast.IsReady);
+        }
         else if (emafast.Result.CrossedAbove(emaslow.Result) && !IsLong())
+        {
             EnterLong();
+            Agent.Log(LogSeverity.Info, "Entry spotted for long (Slow: {0}, Fast: {1})", emaslow.Result.CurrentValue, emafast.Result.CurrentValue);
+        }
         else if (emafast.Result.CrossedUnder(emaslow.Result) && !IsShort())
+        {
             EnterShort();
+            Agent.Log(LogSeverity.Info, "Entry spotted for short (Slow: {0}, Fast: {1})", emaslow.Result.CurrentValue, emafast.Result.CurrentValue);
+        }
         else
             NoEntry();
     }

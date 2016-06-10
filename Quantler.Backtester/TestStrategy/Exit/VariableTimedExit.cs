@@ -39,7 +39,10 @@ internal class VariableTimedExit : ExitTemplate
 
     public override void OnCalculate()
     {
+        //Get current position
         var positions = Agent.Positions[Agent.Symbol];
+
+        //Check if time has passed to exit
         if (!positions.IsFlat && DateTime.UtcNow >= ExitDT)
         {
             ExitDT = DateTime.UtcNow.AddHours(ExitTime);

@@ -23,6 +23,7 @@ using System.Linq;
 
 class VolatilityBased : MoneyManagementTemplate
 {
+    //Private
     private AverageTrueRange ATR;
 
     // Determine the ATR period to calculate with
@@ -71,6 +72,7 @@ class VolatilityBased : MoneyManagementTemplate
         if (!currentpos.IsFlat)
             quantity += Math.Abs(currentpos.Quantity);
 
+        //Update pending order
         pendingorder.Update(x => x.Quantity = quantity);
     }
 }

@@ -17,10 +17,13 @@ Lesser General Public License for more details.
 using Quantler;
 using Quantler.Interfaces.Indicators;
 using Quantler.Templates;
+using Quantler.Interfaces;
+using System;
 
 //Use the ATR or Average True Range to determine our exit
 class ATRExit : ExitTemplate
 {
+    //Private
     private AverageTrueRange atr;
     private decimal currentprice;
 
@@ -44,6 +47,12 @@ class ATRExit : ExitTemplate
         //Check if ready
         if (!atr.IsReady)
             return;
+
+        //Some charting
+        if (currentprice != 0)
+            UpdateChart("Stop Distance", ChartType.Bar, Math.Abs(currentprice - CurrentTick[Agent.Symbol].Ask));
+        else
+            UpdateChart("Stop Distance", ChartType.Bar, 0);
 
         //Check before using the ATR
         if (currentprice != 0 && !HasPosition())
