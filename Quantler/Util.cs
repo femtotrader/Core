@@ -25,7 +25,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Net;
-using System.Net.Cache;
 using System.Reflection;
 using System.Text.RegularExpressions;
 
@@ -153,35 +152,6 @@ namespace Quantler
         }
 
         /// <summary>
-        /// Open a file and get the content of this file in string form
-        /// </summary>
-        /// <param name="fn"></param>
-        /// <returns></returns>
-        public static string Getfile(string fn)
-        {
-            try
-            {
-                StreamReader sr = new StreamReader(fn);
-                string data = sr.ReadToEnd();
-                try
-                {
-                    sr.Close();
-                    sr.Dispose();
-                }
-                catch
-                {
-                    // ignored
-                }
-                return data;
-            }
-            catch (Exception ex)
-            {
-                Log.Error(ex, "error reading: {0}", fn);
-            }
-            return string.Empty;
-        }
-
-        /// <summary>
         /// Get symbol crosses used for calculating pip values
         /// </summary>
         /// <param name="basecurrency"></param>
@@ -237,100 +207,6 @@ namespace Quantler
             }
 
             return toreturn;
-        }
-
-        /// <summary>
-        /// gets a url
-        /// </summary>
-        /// <param name="url"></param>
-        /// <param name="d"></param>
-        /// <returns></returns>
-        public static string geturl(string url) { return geturl(url, false); }
-
-        /// <summary>
-        /// gets a url
-        /// </summary>
-        /// <param name="url"></param>
-        /// <param name="nocache"></param>
-        /// <returns></returns>
-        public static string geturl(string url, bool nocache)
-        {
-            HttpWebRequest wc = null;
-            string r = string.Empty;
-            try
-            {
-                wc = (HttpWebRequest)WebRequest.Create(url);
-                if (nocache)
-                    wc.CachePolicy = new RequestCachePolicy(RequestCacheLevel.NoCacheNoStore);
-                r = GetResponse(wc);
-
-                try
-                {
-                    wc.GetResponse().Close();
-                }
-                catch
-                {
-                    // ignored
-                }
-            }
-            catch (Exception ex)
-            {
-                Log.Error(ex, "error getting: {0}", url);
-                try
-                {
-                    if (wc != null)
-                        wc.GetResponse().Close();
-                }
-                catch
-                {
-                    // ignored
-                }
-            }
-            return r;
-        }
-
-        public static List<List<string>> ParseCsv(string fn)
-        {
-            string data = Getfile(fn);
-            return ParseCsvData(data);
-        }
-
-        public static List<List<string>> ParseCsvData(string data)
-        {
-            return ParseCsvData(data, 1);
-        }
-
-        public static List<List<string>> ParseCsvData(string data, int startline)
-        {
-            string[] lines = data.Split(Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
-            List<List<string>> csv = new List<List<string>>();
-            for (int i = startline; i < lines.Length; i++)
-                csv.Add(ParseCsvLine(lines[i]));
-            return csv;
-        }
-
-        public static List<string> ParseCsvHeaderData(string data)
-        {
-            string[] lines = data.Split(Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
-            if (lines.Length == 0)
-            {
-                Log.Debug(data.Length + " could not be parsed for csv header, contains no newline.");
-                return new List<string>();
-            }
-            List<string> header = new List<string>(lines[0].Split(','));
-            return header;
-        }
-
-        public static List<string> ParseCsvHeaderFile(string fn)
-        {
-            string data = Getfile(fn);
-            return ParseCsvHeaderData(data);
-        }
-
-        public static List<string> ParseCsvLine(string line)
-        {
-            List<string> r = new List<string>(line.Split(','));
-            return r;
         }
 
         public static TickFileInfo ParseFile(string filepath)
@@ -659,6 +535,35 @@ namespace Quantler
             double tmp2 = (double)fulltime / 100;
             splittime[0] = (int)(Math.Round(tmp2 - tmp, 2, MidpointRounding.AwayFromZero) * 100);
             return splittime;
+        }
+
+        /// <summary>
+        /// Open a file and get the content of this file in string form
+        /// </summary>
+        /// <param name="fn"></param>
+        /// <returns></returns>
+        private static string Getfile(string fn)
+        {
+            try
+            {
+                StreamReader sr = new StreamReader(fn);
+                string data = sr.ReadToEnd();
+                try
+                {
+                    sr.Close();
+                    sr.Dispose();
+                }
+                catch
+                {
+                    // ignored
+                }
+                return data;
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "error reading: {0}", fn);
+            }
+            return string.Empty;
         }
 
         #endregion Private Methods
