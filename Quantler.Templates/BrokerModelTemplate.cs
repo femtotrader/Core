@@ -57,6 +57,11 @@ namespace Quantler.Templates
             return 1000;
         }
 
+        public int MaximumOrderVolume(ISecurity s)
+        {
+            return 1000 * 1000;
+        }
+
         public virtual decimal StopOutLevel()
         {
             return 20;

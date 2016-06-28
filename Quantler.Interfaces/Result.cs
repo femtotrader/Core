@@ -79,6 +79,9 @@ namespace Quantler.Interfaces
         /// </summary>
         int DaysTraded { get; set; }
 
+        /// <summary>
+        /// Absolute dollar returns per trade 
+        /// </summary>
         decimal[] DollarReturns { get; set; }
 
         /// <summary>
@@ -86,8 +89,14 @@ namespace Quantler.Interfaces
         /// </summary>
         int Flats { get; set; }
 
+        /// <summary>
+        /// Gross return averaged per day
+        /// </summary>
         decimal GrossPerDay { get; set; }
 
+        /// <summary>
+        /// Gross return averaged per symbol
+        /// </summary>
         decimal GrossPerSymbol { get; set; }
 
         /// <summary>
@@ -111,12 +120,12 @@ namespace Quantler.Interfaces
         int Losers { get; set; }
 
         /// <summary>
-        /// Max drawdown based on money in use
+        /// Max drawdown (based on money in use)
         /// </summary>
         decimal MaxDD { get; set; }
 
         /// <summary>
-        /// Max drawdown absed on equity
+        /// Max drawdown (based on initial capital)
         /// </summary>
         decimal MaxDDPortfolio { get; }
 
@@ -136,7 +145,7 @@ namespace Quantler.Interfaces
         decimal MaxOpenWin { get; set; }
 
         /// <summary>
-        /// highest gross pl to acheive final result
+        /// highest gross pl to achieve final result
         /// </summary>
         decimal MaxPL { get; set; }
 
@@ -146,15 +155,18 @@ namespace Quantler.Interfaces
         decimal MaxWin { get; set; }
 
         /// <summary>
-        /// lowest gross pl to acheive final result
+        /// lowest gross pl to achieve final result
         /// </summary>
         decimal MinPL { get; set; }
 
         /// <summary>
-        /// total/max money used to acheive result
+        /// total/max money used to achieve result
         /// </summary>
         decimal MoneyInUse { get; set; }
 
+        /// <summary>
+        /// Negative result in percentage (based on money in use)
+        /// </summary>
         decimal[] NegPctReturns { get; }
 
         /// <summary>
@@ -162,10 +174,24 @@ namespace Quantler.Interfaces
         /// </summary>
         decimal NetPL { get; }
 
+        /// <summary>
+        /// Percentage returns of past trades
+        /// </summary>
         decimal[] PctReturns { get; }
-        List<string> PerSymbolStats { get; set; }
+
+        /// <summary>
+        /// Negative percentage returns of past trades (based on initial capital)
+        /// </summary>
         decimal[] PortfolioNegPctReturns { get; }
+        
+        /// <summary>
+        /// Percentage resturns of past trades (based on initial capital)
+        /// </summary>
         decimal[] PortfolioPctReturns { get; }
+
+        /// <summary>
+        /// Calculated profit factor
+        /// </summary>
         decimal ProfitFactor { get; }
 
         /// <summary>
@@ -175,7 +201,14 @@ namespace Quantler.Interfaces
 
         string ResultsId { get; set; }
 
+        /// <summary>
+        /// Return on investment (based on initial capital)
+        /// </summary>
         decimal ROI { get; }
+
+        /// <summary>
+        /// Round turn losers
+        /// </summary>
         int RoundLosers { get; set; }
 
         /// <summary>
@@ -183,6 +216,9 @@ namespace Quantler.Interfaces
         /// </summary>
         int RoundTurns { get; set; }
 
+        /// <summary>
+        /// Rount turn winners
+        /// </summary>
         int RoundWinners { get; set; }
 
         /// <summary>
@@ -210,13 +246,14 @@ namespace Quantler.Interfaces
         /// </summary>
         decimal SharpeRatio { get; set; }
 
-        string SimParameters { get; set; }
-
         /// <summary>
         /// Current sortino ratio
         /// </summary>
         decimal SortinoRatio { get; set; }
 
+        /// <summary>
+        /// Amount of symbols traded
+        /// </summary>
         int SymbolCount { get; set; }
 
         /// <summary>
@@ -224,6 +261,9 @@ namespace Quantler.Interfaces
         /// </summary>
         string Symbols { get; set; }
 
+        /// <summary>
+        /// Total amount of trades made
+        /// </summary>
         int Trades { get; set; }
 
         /// <summary>

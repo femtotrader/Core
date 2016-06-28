@@ -362,19 +362,27 @@ namespace Quantler.Orders
 
         #region Private Methods
 
+        /// <summary>
+        /// Add impact of additional slippage on the price
+        /// </summary>
+        /// <param name="price"></param>
+        /// <param name="slippage"></param>
+        /// <returns></returns>
         private decimal ImpactPriceSlippage(decimal price, decimal slippage)
         {
+            slippage /= 2;
             return Direction == Direction.Long ? price + slippage * Security.PipSize : price - slippage * Security.PipSize;
         }
 
         /// <summary>
-        /// Add impact of additional spread on the price, spread used is full spread
+        /// Add impact of additional spread on the price
         /// </summary>
         /// <param name="price"></param>
         /// <param name="spread"></param>
         /// <returns></returns>
         private decimal ImpactPriceSpread(decimal price, decimal spread)
         {
+            spread /= 2;
             return Direction == Direction.Long ? price + spread * Security.PipSize : price - spread * Security.PipSize;
         }
 

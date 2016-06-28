@@ -29,7 +29,7 @@ using Quantler.Securities;
 
 namespace Quantler.Backtester
 {
-    internal class SimpleBacktester
+    public class SimpleBacktester
     {
         #region Private Fields
 
@@ -44,6 +44,8 @@ namespace Quantler.Backtester
         private double lastp;
 
         private List<PendingOrder> OrderHistory = new List<PendingOrder>();
+
+        private List<Trade> TradeHistory = new List<Trade>();
 
         private Queue<PendingOrder> orders = new Queue<PendingOrder>();
 
@@ -152,9 +154,11 @@ namespace Quantler.Backtester
 
         #region Public Properties
 
-        public bool Orders { get { return _orders; } set { _orders = value; } }
+        public PendingOrder[] Orders { get { return OrderHistory.ToArray(); } }
 
-        public bool Trades { get { return _trades; } set { _trades = value; } }
+        public Trade[] Trades { get { return TradeHistory.ToArray(); } }
+
+        public Result Results { get; private set; }
 
         #endregion Public Properties
 
@@ -238,6 +242,7 @@ namespace Quantler.Backtester
             // save fills so we can generate stats later
             TradeMutations.Add(t, o);
             portfolio.GotFill(t, o);
+            TradeHistory.Add(t);
         }
 
         private void SimBroker_GotOrder(PendingOrder o)
@@ -275,14 +280,14 @@ namespace Quantler.Backtester
 
             StreamWriter wr = new StreamWriter(Directory.GetCurrentDirectory() + @"\trades.csv", false);
 
-            wr.WriteLine("Date,Time,Symbol,Side,xSize,xPrice,Comment,OpenPL,ClosedPL,OpenSize,ClosedSize,AvgPrice,ID,OrderType,Direction,LimitPrice,StopPrice,Size,Quantity,Status,Cancelled");
+            wr.WriteLine("Date,Time,Symbol,Side,xSize,xPrice,Comment,OpenPL,ClosedPL,OpenSize,ClosedSize,AvgPrice,Commission,Currency,Swap");
             var lines = Util.TradesToClosedPL(TradeMutations.Keys.ToList(), ',');
             var pos = TradeMutations.Values.ToArray();
 
             for (int i = 0; i < lines.Length; i++)
             {
-                var oldpo = pos[i];
-                lines[i] += string.Format(",{0},{1},{2},{3},{4},{5},{6},{7},{8}", oldpo.OrderId, oldpo.Order.Type, oldpo.Order.Direction, oldpo.Order.LimitPrice, oldpo.Order.StopPrice, oldpo.Order.Size, oldpo.Order.Quantity, oldpo.OrderStatus, oldpo.IsCancelled);
+                var oldpo = TradeHistory[i];
+                lines[i] += string.Format(",{0},{1},{2}", oldpo.Commission, oldpo.Currency, oldpo.Swap);
                 wr.WriteLine(lines[i]);
             }
             wr.Flush();

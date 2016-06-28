@@ -100,6 +100,13 @@ namespace Quantler.Orders
                 toreturn.Cancel();
             }
 
+            //Check order minimum size
+            if(norder.Size < norder.Security.OrderMinSize)
+            {
+                toreturn.OrderStatus = StatusType.ORDER_INVALID_VOLUME;
+                toreturn.Cancel();
+            }
+
             //Check order type
             //Set Order Limit Price
             if (limitPrice >= 0)

@@ -60,6 +60,10 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -76,7 +80,6 @@
   <ItemGroup>
     <Compile Include="Agent\TestTradingAgent.cs" />
     <Compile Include="Agent\TestTradingPortfolio.cs" />
-    <Compile Include="Backtester\RegressionTests.cs" />
     <Compile Include="Backtester\TestMultiSecurity.cs" />
     <Compile Include="Backtester\TestSingleSecurity.cs" />
     <Compile Include="Common\Research\ZeroTransactionCosts.cs" />
@@ -130,6 +133,9 @@
     <Compile Include="Indicators\TestIndicatorWilliamsR.cs" />
     <Compile Include="Indicators\Util.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Regression\Algorithms\Templates\EMACrossEntry.cs" />
+    <Compile Include="Regression\BacktestResults.cs" />
+    <Compile Include="Regression\Util.cs" />
     <Compile Include="Templates\TestEntryTemplate.cs" />
     <Compile Include="Templates\TestExitTemplate.cs" />
     <Compile Include="Templates\TestIndicatorTemplate.cs" />
@@ -215,7 +221,9 @@
     <None Include="Indicators\ResultFiles\wma.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="packages.config" />
+    <None Include="packages.config">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
@@ -232,6 +240,10 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Quantler.Backtester\Quantler.Backtester.csproj">
+      <Project>{ccf9fdbe-c0d5-4697-b93c-976b690d75e9}</Project>
+      <Name>Quantler.Backtester</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Quantler.Indicators\Quantler.Indicators.csproj">
       <Project>{21f01535-3125-4f9f-bce3-5cc18689272e}</Project>
       <Name>Quantler.Indicators</Name>
@@ -250,7 +262,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Regression\" />
+    <Folder Include="Regression\Algorithms\Agents\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

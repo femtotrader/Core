@@ -50,7 +50,6 @@ namespace Quantler.Trades
         private int _livecheckafterXticks = 1;
         private int _livetickdelaymax = 60;
         private decimal _losepnl;
-        private List<string> _persym = new List<string>();
         private Position _prevPos;
         private string _resultid = string.Empty;
 
@@ -191,8 +190,6 @@ namespace Quantler.Trades
         public string NetPlNice { get { return V2S(NetPL); } }
 
         public decimal[] PctReturns { get; private set; }
-
-        public List<string> PerSymbolStats { get { return _persym; } set { _persym = value; } }
 
         public decimal[] PortfolioNegPctReturns { get; private set; }
 
@@ -340,8 +337,12 @@ namespace Quantler.Trades
         private void ProcessTrade(TradeResult tr, Position pos, decimal pospl)
         {
             //Compare to prevpos
+            bool initial = false;
             if (_prevPos == null)
+            {
                 _prevPos = pos;
+                initial = true;
+            }
 
             if (_tradecount.ContainsKey(tr.Source.Symbol))
                 _tradecount[tr.Source.Symbol]++;
@@ -354,7 +355,7 @@ namespace Quantler.Trades
             var miubefore = _prevPos.IsFlat ? 0 : _prevPos.UnsignedSize * _prevPos.AvgPrice;
 
             //Use new position from here
-            bool isroundturn = (usizebefore != 0) && (pos.Direction != _prevPos.Direction);
+            bool isroundturn = (usizebefore > 0) && pospl != 0 && !initial && (pos.Direction != _prevPos.Direction);
 
             // get comissions
             Commissions += tr.Commission;
@@ -391,7 +392,6 @@ namespace Quantler.Trades
             Balance += netpl;
 
             // if it is below our zero, count it as negative return
-
             if (pctret < 0)
                 _negret.Add(pctret);
 
@@ -412,7 +412,7 @@ namespace Quantler.Trades
 
             if ((tr.ClosedPl > 0) && !_exitscounted.Contains(tr.Source.Id))
             {
-                if (tr.Source.Direction == Direction.Short)
+                if (tr.Source.Direction == Direction.Long)
                 {
                     SellWins++;
                     SellPL += tr.ClosedPl;
@@ -430,7 +430,7 @@ namespace Quantler.Trades
             }
             else if ((tr.ClosedPl < 0) && !_exitscounted.Contains(tr.Source.Id))
             {
-                if (tr.Source.Direction == Direction.Short)
+                if (tr.Source.Direction == Direction.Long)
                 {
                     SellLosers++;
                     SellPL += tr.ClosedPl;

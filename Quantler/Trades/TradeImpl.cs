@@ -24,7 +24,6 @@ namespace Quantler.Trades
     /// <summary>
     /// A trade or execution of an order. Also called a fill.
     /// </summary>
-    [Serializable]
     public class TradeImpl : Trade
     {
         #region Private Fields

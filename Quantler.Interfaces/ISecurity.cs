@@ -98,9 +98,19 @@ namespace Quantler.Interfaces
         decimal OrderMinQuantity { get; }
 
         /// <summary>
+        /// Returns the maximum quantity for an order (0.01 for microlots and 0.10 for mini lots)
+        /// </summary>
+        decimal OrderMaxQuantity { get; }
+
+        /// <summary>
         /// Returns the minimum size for an order
         /// </summary>
         int OrderMinSize { get; }
+
+        /// <summary>
+        /// Returns the maximum size for an order
+        /// </summary>
+        int OrderMaxSize { get; }
 
         /// <summary>
         /// Returns the step quantity (0.01 for microlots and 0.10 for mini lots)

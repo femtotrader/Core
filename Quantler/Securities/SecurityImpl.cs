@@ -1,6 +1,5 @@
-#region License
 /*
-Copyright Quantler BV, based on original code copyright Tradelink.org. 
+Copyright Quantler BV, based on original code copyright Tradelink.org.
 This file is released under the GNU Lesser General Public License v3. http://www.gnu.org/copyleft/lgpl.html
 
 This library is free software; you can redistribute it and/or
@@ -13,7 +12,6 @@ but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 Lesser General Public License for more details.
 */
-#endregion
 
 using Quantler.Data.TikFile;
 using Quantler.Interfaces;
@@ -122,6 +120,11 @@ namespace Quantler.Securities
         }
 
         /// <summary>
+        /// Name of the broker for this security
+        /// </summary>
+        public string BrokerName { get; set; }
+
+        /// <summary>
         /// date associated with security
         /// </summary>
         public int Date { get; set; }
@@ -144,11 +147,6 @@ namespace Quantler.Securities
             get;
             set;
         }
-
-        /// <summary>
-        /// Name of the broker for this security
-        /// </summary>
-        public string BrokerName { get; set; }
 
         /// <summary>
         /// whether security has a exchange
@@ -196,9 +194,20 @@ namespace Quantler.Securities
         /// </summary>
         public string Name { get { return _sym; } set { _sym = value; } }
 
+        public int OrderMaxSize
+        {
+            get;
+            set;
+        }
+
         public decimal OrderMinQuantity
         {
             get { return OrderMinSize / (decimal)LotSize; }
+        }
+
+        public decimal OrderMaxQuantity
+        {
+            get { return OrderMaxSize / (decimal)LotSize; }
         }
 
         public int OrderMinSize

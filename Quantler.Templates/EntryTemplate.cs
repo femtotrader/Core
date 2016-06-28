@@ -42,6 +42,15 @@ namespace Quantler.Templates
         }
 
         /// <summary>
+        /// Provide an entry long signal to the agent for a specific security
+        /// </summary>
+        /// <param name="Security"></param>
+        public void EnterLong(ISecurity Security)
+        {
+            EnterLong(Security.Name);
+        }
+
+        /// <summary>
         /// Provide an entry Short signal to the agent
         /// </summary>
         public void EnterShort()
@@ -57,6 +66,15 @@ namespace Quantler.Templates
         {
             if (Agent.CurrentState.ContainsKey(Symbol))
                 Agent.CurrentState[Symbol].Add(AgentState.EntryShort);
+        }
+
+        /// <summary>
+        /// Provide an entry short signal to the agent for a specific security
+        /// </summary>
+        /// <param name="Security"></param>
+        public void EnterShort(ISecurity Security)
+        {
+            EnterShort(Security.Name);
         }
 
         /// <summary>

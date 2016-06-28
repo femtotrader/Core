@@ -73,6 +73,13 @@ namespace Quantler.Interfaces
         int OrderVolumeStepSize(ISecurity s);
 
         /// <summary>
+        /// Returns the maximum order size (1.000 equals 1 microlot)
+        /// </summary>
+        /// <param name="s"></param>
+        /// <returns></returns>
+        int MaximumOrderVolume(ISecurity s);
+
+        /// <summary>
         /// Return the stop out level used, before giving a margin call
         /// </summary>
         /// <returns></returns>
