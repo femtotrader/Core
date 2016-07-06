@@ -237,22 +237,22 @@ namespace Quantler.Agent
 
         public void AddDataStream(SecurityType type, string name)
         {
-            AddDataStream(new OHLCBarStream(Portfolio.Securities[name]));
+            AddDataStream(new OHLCBarStream(Portfolio.Securities[name, type]));
         }
 
         public void AddDataStream(SecurityType type, string name, TimeSpan interval)
         {
-            AddDataStream(new OHLCBarStream(Portfolio.Securities[name], (int)interval.TotalSeconds));
+            AddDataStream(new OHLCBarStream(Portfolio.Securities[name, type], (int)interval.TotalSeconds));
         }
 
         public void AddDataStream(SecurityType type, string name, int interval)
         {
-            AddDataStream(new OHLCBarStream(Portfolio.Securities[name], interval));
+            AddDataStream(new OHLCBarStream(Portfolio.Securities[name, type], interval));
         }
 
         public void AddDataStream(SecurityType type, string name, BarInterval interval)
         {
-            AddDataStream(new OHLCBarStream(Portfolio.Securities[name], (int)interval));
+            AddDataStream(new OHLCBarStream(Portfolio.Securities[name, type], (int)interval));
         }
 
         public void AddEvent(object template)
@@ -701,9 +701,12 @@ namespace Quantler.Agent
             PendingOrder rmOrder = null;
 
             //Check if we are allowed to trade
-            RiskManagementTemplate rm = (RiskManagementTemplate)Templates.FirstOrDefault(x => x.GetType() == typeof(RiskManagementTemplate));
+            var types = Templates.Select(x => x.GetType());
+            RiskManagementTemplate rm = (RiskManagementTemplate)Templates.FirstOrDefault(x => x.GetType().BaseType == typeof(RiskManagementTemplate));
 
-            if (rm != null && !rm.IsTradingAllowed())
+            if (rm != null 
+                && !rm.IsTradingAllowed() 
+                && (state != AgentState.EntryLong || state != AgentState.EntryShort))
                 return false;
 
             //Check risk management

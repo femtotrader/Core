@@ -26,7 +26,6 @@ namespace Quantler.Data.TikFile
     /// <summary>
     /// Filters tick files (EPF/IDX) based on symbol name and trading date.
     /// </summary>
-    [Serializable]
     public class TickFileFilter
     {
         #region Private Fields

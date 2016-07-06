@@ -134,6 +134,7 @@
     <Compile Include="Indicators\Util.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Regression\Algorithms\Templates\EMACrossEntry.cs" />
+    <Compile Include="Regression\Algorithms\Templates\MultiCrossEntry.cs" />
     <Compile Include="Regression\BacktestResults.cs" />
     <Compile Include="Regression\Util.cs" />
     <Compile Include="Templates\TestEntryTemplate.cs" />
@@ -152,6 +153,9 @@
     <None Include="Common\AUDJPY.zip">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="Common\EURUSD.zip">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="Common\EURUSD20080826.TIK">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -159,6 +163,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Common\FTI20070926.TIK">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Common\GBPJPY.zip">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Common\SPX20070926.TIK">
@@ -263,6 +270,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Regression\Algorithms\Agents\" />
+    <Folder Include="Regression\Algorithms\Results\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

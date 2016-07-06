@@ -32,7 +32,6 @@ namespace Quantler.Simulator
     /// than multi-sim, multiple symbols in the same day are not guaranteed to be played back in
     /// sequence. also processes orders and executions against same tickfiles (via embedded Broker component).
     /// </summary>
-    [DesignerCategory("")]
     public class SingleSimImpl : HistSim
     {
         #region Public Fields

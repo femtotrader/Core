@@ -40,12 +40,28 @@ namespace Quantler.Interfaces
         ISecurity this[int idx] { get; }
 
         /// <summary>
+        /// Returns a security based on its name and type
+        /// </summary>
+        /// <param name="symbol"></param>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        ISecurity this[string symbol, SecurityType type] { get; }
+
+        /// <summary>
         /// Return a security based on the symbol name and the exchange on which it is traded
         /// </summary>
         /// <param name="symbol"></param>
         /// <param name="exchange"></param>
         /// <returns></returns>
         ISecurity this[string symbol, string exchange] { get; }
+
+        /// <summary>
+        /// Return a security based on the symbol name and the exchange on which it is traded, and its type
+        /// </summary>
+        /// <param name="symbol"></param>
+        /// <param name="exchange"></param>
+        /// <returns></returns>
+        ISecurity this[string symbol, string exchange, SecurityType type] { get; }
 
         /// <summary>
         /// Return a security based on the symbol name

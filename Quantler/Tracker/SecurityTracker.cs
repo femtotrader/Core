@@ -1,6 +1,5 @@
-﻿#region License
-/*
-Copyright Quantler BV, based on original code copyright Tradelink.org. 
+﻿/*
+Copyright Quantler BV, based on original code copyright Tradelink.org.
 This file is released under the GNU Lesser General Public License v3. http://www.gnu.org/copyleft/lgpl.html
 
 This library is free software; you can redistribute it and/or
@@ -13,7 +12,6 @@ but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 Lesser General Public License for more details.
 */
-#endregion
 
 using Quantler.Interfaces;
 using System;
@@ -51,11 +49,11 @@ namespace Quantler.Tracker
         #region Public Indexers
 
         /// <summary>
-        /// Get the security object based on the symbolsname
+        /// Get the security object based on the symbol name
         /// </summary>
         /// <param name="symbol"></param>
         /// <returns></returns>
-        public new ISecurity this[string symbol]
+        public ISecurity this[string symbol]
         {
             get
             {
@@ -63,6 +61,26 @@ namespace Quantler.Tracker
                 if (idx < 0)
                 {
                     var security = (T)Activator.CreateInstance(typeof(T), symbol);
+                    AddSecurity(security);
+                    return security;
+                }
+                return this[idx];
+            }
+        }
+
+        /// <summary>
+        /// Get the security object based on the symbol name and its security type
+        /// </summary>
+        /// <param name="symbol"></param>
+        /// <returns></returns>
+        public ISecurity this[string symbol, SecurityType type]
+        {
+            get
+            {
+                int idx = getindex(symbol + DefaultExchange);
+                if (idx < 0)
+                {
+                    var security = GetNewtSecurity(type, symbol);
                     AddSecurity(security);
                     return security;
                 }
@@ -84,6 +102,28 @@ namespace Quantler.Tracker
                 if (idx < 0)
                 {
                     var security = (T)Activator.CreateInstance(typeof(T), symbol);
+                    AddSecurity(security);
+                    return security;
+                }
+                return this[idx];
+            }
+        }
+
+        /// <summary>
+        /// Get security by symbol, exchange and security type
+        /// </summary>
+        /// <param name="symbol"></param>
+        /// <param name="exchange"></param>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        public ISecurity this[string symbol, string exchange, SecurityType type]
+        {
+            get
+            {
+                int idx = getindex(symbol + exchange);
+                if (idx < 0)
+                {
+                    var security = GetNewtSecurity(type, symbol);
                     AddSecurity(security);
                     return security;
                 }
@@ -123,5 +163,45 @@ namespace Quantler.Tracker
         }
 
         #endregion Public Methods
+
+        #region Private Methods
+
+        private ISecurity GetNewtSecurity(SecurityType type, string name)
+        {
+            switch (type)
+            {
+                case SecurityType.NIL:
+                    break;
+
+                case SecurityType.Equity:
+                    return new Securities.EquitySecurity(name);
+
+                case SecurityType.Option:
+                    break;
+
+                case SecurityType.Future:
+                    break;
+
+                case SecurityType.Forex:
+                    return new Securities.ForexSecurity(name);
+
+                case SecurityType.Index:
+                    break;
+
+                case SecurityType.Bond:
+                    break;
+
+                case SecurityType.CFD:
+                    break;
+
+                default:
+                    break;
+            }
+
+            //TODO: implement other types
+            return null;
+        }
+
+        #endregion Private Methods
     }
 }

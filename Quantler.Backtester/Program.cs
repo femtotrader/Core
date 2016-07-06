@@ -95,11 +95,16 @@ namespace Quantler.Backtester
         /// <param name="startdate"></param>
         /// <param name="enddate"></param>
         /// <returns></returns>
-        private static string[] GetTIKFiles(string baseFolder, string[] symbols, out TickFileFilter filter, int startdate, int enddate)
+        private static string[] GetTIKFiles(string baseFolder, ISecurityTracker securities, out TickFileFilter filter, int startdate, int enddate)
         {
             List<string> files = new List<string>();
 
             //Create filter with the symbols as requested
+            List<string> symbols = new List<string>();
+            foreach (var sec in securities.ToArray())
+            {
+                symbols.Add(sec.Name);
+            }
             filter = new TickFileFilter(symbols);
 
             //Add the initial timeperiod
@@ -193,8 +198,9 @@ namespace Quantler.Backtester
                     endDTfilter = 20151231;
                 }
 
-                files = GetTIKFiles(tickfolder, symbols, out filter, startDTfilter, endDTfilter);
-                Execute(Get(symbols[0]), tickfolder, 0, files);
+                var portfolio = Get(symbols[0]);
+                files = GetTIKFiles(tickfolder, portfolio.Securities, out filter, startDTfilter, endDTfilter);
+                Execute(portfolio, tickfolder, 0, files);
             }
             catch (Exception exc)
             {

@@ -23,6 +23,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Quantler.Simulator
 {
@@ -30,7 +31,6 @@ namespace Quantler.Simulator
     /// historical simulation component. plays back many tickfiles insequence over time. also
     /// processes orders and executions against same tickfiles (via embedded Broker component).
     /// </summary>
-    [DesignerCategory("")]
     public class MultiSimImpl : HistSim
     {
         #region Public Fields
@@ -63,12 +63,14 @@ namespace Quantler.Simulator
         private int _nextindex;
         private long _nextticktime = Endsim;
         private bool _orderok = true;
-        private int _readcache = 15;
+        private int _readcache = 40;
         private long _simend;
         private long _simstart;
         private volatile int _tickcount;
         private string[] _tickfiles = new string[0];
         private List<SimWorker> _workers = new List<SimWorker>();
+        private bool _importing = false;
+        private static object _locker = new object();
 
         #endregion Private Fields
 
@@ -232,8 +234,6 @@ namespace Quantler.Simulator
 
             // read in single tick just to get first time for user
             InitializeAhead(_readcache);
-            FillCache(1);
-
             _inited = true;
 
             // set first time as hint for user
@@ -283,19 +283,22 @@ namespace Quantler.Simulator
         /// </summary>
         public void Stop()
         {
-            foreach (SimWorker w in _workers)
+            lock (_workers)
             {
-                if (w.IsBusy)
-                    w.CancelAsync();
-                if (w.Workersec.HistSource.BaseStream != null && w.Workersec.HistSource.BaseStream.CanRead)
+                foreach (SimWorker w in _workers)
                 {
-                    try
+                    if (w.IsBusy)
+                        w.CancelAsync();
+                    if (w.Workersec.HistSource.BaseStream != null && w.Workersec.HistSource.BaseStream.CanRead)
                     {
-                        w.Workersec.HistSource.Close();
-                    }
-                    catch
-                    {
-                        // ignored
+                        try
+                        {
+                            w.Workersec.HistSource.Close();
+                        }
+                        catch
+                        {
+                            // ignored
+                        }
                     }
                 }
             }
@@ -310,8 +313,11 @@ namespace Quantler.Simulator
 
         private void CancelWorkers()
         {
-            foreach (SimWorker t in _workers)
-                t.CancelAsync();
+            lock (_workers)
+            {
+                foreach (SimWorker t in _workers)
+                    t.CancelAsync();
+            }
         }
 
         private void D(string message)
@@ -322,32 +328,6 @@ namespace Quantler.Simulator
         private void Debug(string msg)
         {
             _log.Debug(msg);
-        }
-
-        /// <summary>
-        /// Fill cache by reading x amount of ticks ahead
-        /// </summary>
-        /// <param name="readahead">Amount of ticks to read ahead</param>
-        private void FillCache(int readahead)
-        {
-            // start all the workers not running have them read 'readahead' ticks in advance
-            for (int i = 0; i < _workers.Count; i++)
-            {
-                // for some reason background worker is slow exiting, recreate
-                if (_workers[i].IsBusy)
-                {
-                    V(_workers[i].Name + " worker#" + i + " is busy, waiting till free...");
-                    // retry
-                    while (_workers[i].IsBusy)
-                    {
-                        Thread.Sleep(10);
-                    }
-                    V(_workers[i].Name + " is no longer busy.");
-                    Thread.Sleep(10);
-                }
-                _workers[i].RunWorkerAsync(readahead);
-                V(_workers[i].Name + " worker#" + i + " now is working.");
-            }
         }
 
         /// <summary>
@@ -384,7 +364,7 @@ namespace Quantler.Simulator
                 while (times.ElementAt(0).Value == -1)
                 {
                     //Request next file
-                    InitializeAhead(1);
+                    Task.Run(() => InitializeAhead(1));
 
                     //Refresh times
                     times = Nexttimes();
@@ -392,6 +372,8 @@ namespace Quantler.Simulator
                     //Set new element
                     _currentindex = times.ElementAt(0).Key;
                 }
+
+                //Console.WriteLine("Using file {0}", _workers[_currentindex].Name);
 
                 // test to see if ticks left in simulation
                 bool ticksleft = _nextindex <= _tickfiles.Length && _workers[_currentindex].HasTicks;
@@ -482,6 +464,15 @@ namespace Quantler.Simulator
         /// <param name="files"></param>
         private void InitializeAhead(int files)
         {
+            //Check Barrier
+            lock (_locker)
+            {
+                if (_importing)
+                    return;
+                else
+                    _importing = true;
+            }
+
             //Dispose and clear memory by removing old and unused files
             if (_inited)
                 RemoveLastUnusedReader();
@@ -497,13 +488,25 @@ namespace Quantler.Simulator
 
             // now we have our list, initialize instruments from files
             int max = files + _nextindex > _tickfiles.Length ? _tickfiles.Length : files + _nextindex;
+            int ticksfound = 0;
             for (int i = _nextindex; i < max; i++)
             {
                 try
                 {
                     SecurityImpl s = GetSecurity(_nextindex);
                     if ((s != null) && s.IsValid && s.HistSource.IsValid)
-                        _workers.Add(new SimWorker(s));
+                    {
+                        lock (_workers)
+                        {
+                            var worker = new SimWorker(s);
+                            worker.SingleCoreFillCache(int.MaxValue); //File is already loaded in memory due to zip reader
+                            //worker.RunWorkerAsync(int.MaxValue); //NOT BEING FIRED ON SEPERATE THREAD
+                            V(worker.Name + " worker#" + i + " now is working.");
+
+                            _workers.Add(worker);
+                            ticksfound = _workers.Skip(_workers.Count - files).Sum(x => x.Workersec.ApproxTicks);
+                        }
+                    }
 
                     _nextindex++;
                 }
@@ -514,12 +517,13 @@ namespace Quantler.Simulator
             }
 
             // log ticks found
-            int ticksfound = _workers.Skip(_workers.Count - files).Sum(x => x.Workersec.ApproxTicks);
             _availticks += ticksfound;
 
-            //Read ahead
-            if (files > 0)
-                FillCache(Int32.MaxValue);
+            //Barrier
+            lock (_locker)
+            {
+                _importing = false;
+            }
         }
 
         /// <summary>
@@ -529,15 +533,26 @@ namespace Quantler.Simulator
         private IEnumerable<KeyValuePair<int, long>> Nexttimes()
         {
             // setup a next entry for every instrument
-            Dictionary<int, long> toreturn = new Dictionary<int, long>();
+            Dictionary<int, SimWorker> toreturn = new Dictionary<int, SimWorker>();
             int timesidx = 0;
 
             // loop through instrument's next time, set flag if no more ticks left in cache
             int amount = _readcache;
             if (_readcache >= 15)
-                amount = _readcache / 3;
-            foreach (var file in _workers.Take(amount))
+                amount = _readcache / 2;
+
+            List<SimWorker> workerscopy;
+            lock (_workers)
             {
+                workerscopy = _workers.Take(amount).ToList();
+            }
+
+            foreach (var file in workerscopy)
+            {
+                // check file
+                if (file == null)
+                    continue;
+
                 // loop until worker has ticks
                 while (!file.HasTicks)
                 {
@@ -553,11 +568,16 @@ namespace Quantler.Simulator
 
                 // we should either have ticks or be finished with this worker, set the value of
                 // this worker's next time value accordingly
-                toreturn.Add(timesidx, file.HasTicks ? file.NextTime() : Completed);
+                toreturn.Add(timesidx, file);
                 timesidx++;
             }
 
-            return toreturn.OrderBy(x => x.Value);
+            var items = toreturn
+                .Select(x => new { Key = x.Key, Value = x.Value.HasTicks ? x.Value.NextTime() : Completed, Name = x.Value.Workersec.Name })
+                .OrderBy(x => x.Value)
+                .ThenBy(x => x.Name)
+                .Select(x => new KeyValuePair<int, long>(x.Key, x.Value));
+            return items;
         }
 
         /// <summary>
@@ -565,11 +585,17 @@ namespace Quantler.Simulator
         /// </summary>
         private void RemoveLastUnusedReader()
         {
-            var found = _workers.Where(x => !x.HasTicks).ToArray();
-            foreach (var key in found)
+            lock (_workers)
             {
-                _workers.Remove(key);
-                FilesProcessed++;
+                var items = _workers
+                    .Where(x => x != null)
+                    .Where(x => !x.HasTicks).ToArray();
+
+                foreach (var key in items)
+                {
+                    _workers.Remove(key);
+                    FilesProcessed++;
+                }
             }
         }
 
@@ -580,7 +606,7 @@ namespace Quantler.Simulator
         private void SecurityPlayTo(long ftime)
         {
             // start all the workers reading files in background
-            FillCache(int.MaxValue);
+            //FillCache(int.MaxValue);
 
             // wait a moment to allow tick reading to start
             Thread.Sleep(_cachepause);

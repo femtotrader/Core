@@ -33,10 +33,12 @@ namespace Quantler.Securities
             Name = symbol;
             Type = SecurityType.Forex;
             LotSize = 100000;
-            PipSize = 0.01M;
+            PipSize = symbol.EndsWith("JPY") ? 0.01M : 0.0001M;
             OrderStepSize = 1000;
             OrderMinSize = 1000;
             TickSize = PipSize / 10;
+
+            //For initial pipvalue
             PipValue = 0.00807M;
         }
 

@@ -63,6 +63,8 @@ namespace Quantler.Backtester
 
         private Dictionary<Trade, PendingOrder> TradeMutations = new Dictionary<Trade, PendingOrder>();
 
+        private Dictionary<string, long> SymbolTicksProcessed = new Dictionary<string, long>();
+
         #endregion Private Fields
 
         #region Public Constructors
@@ -193,6 +195,10 @@ namespace Quantler.Backtester
 
             //Count ticks
             TicksProcessed++;
+            if (!SymbolTicksProcessed.ContainsKey(t.Symbol))
+                SymbolTicksProcessed.Add(t.Symbol, 1);
+            else
+                SymbolTicksProcessed[t.Symbol] += 1;
 
             try
             {

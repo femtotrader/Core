@@ -24,7 +24,6 @@ namespace Quantler.Orders
     /// <summary>
     /// Specify an order to buy or sell a quantity of a security.
     /// </summary>
-    [Serializable]
     public class OrderImpl : TradeImpl, Order
     {
         #region Private Fields

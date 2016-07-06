@@ -63,6 +63,8 @@ namespace Quantler.Tests.Common
 
         private int tickcount = 0;
 
+        private Tick lasttick = null;
+
         #endregion Private Fields
 
         #region Public Constructors
@@ -241,6 +243,52 @@ namespace Quantler.Tests.Common
             Assert.Equal(5616, tickcount);
         }
 
+        [Fact]
+        [Trait("Quantler.Common", "Quantler")]
+        public void RawMultiFromZip()
+        {
+            MultiSimImpl h = new MultiSimImpl(new string[] 
+            { 
+                @"Common\EURUSD.zip\EURUSD20070601.TIK", 
+                @"Common\EURUSD.zip\EURUSD20070531.TIK", 
+                @"Common\EURUSD.zip\EURUSD20070530.TIK", 
+                @"Common\EURUSD.zip\EURUSD20070529.TIK", 
+                @"Common\EURUSD.zip\EURUSD20070528.TIK", 
+                @"Common\EURUSD.zip\EURUSD20070527.TIK", 
+                @"Common\EURUSD.zip\EURUSD20070525.TIK", 
+                @"Common\EURUSD.zip\EURUSD20070524.TIK", 
+                @"Common\EURUSD.zip\EURUSD20070523.TIK", 
+                @"Common\EURUSD.zip\EURUSD20070522.TIK", 
+                @"Common\EURUSD.zip\EURUSD20070521.TIK", 
+                @"Common\EURUSD.zip\EURUSD20070520.TIK", 
+                @"Common\EURUSD.zip\EURUSD20070518.TIK", 
+                @"Common\EURUSD.zip\EURUSD20070517.TIK", 
+                @"Common\EURUSD.zip\EURUSD20070516.TIK", 
+                @"Common\EURUSD.zip\EURUSD20070515.TIK", 
+                @"Common\EURUSD.zip\EURUSD20070514.TIK", 
+                @"Common\GBPJPY.zip\GBPJPY20070601.TIK", 
+                @"Common\GBPJPY.zip\GBPJPY20070531.TIK", 
+                @"Common\GBPJPY.zip\GBPJPY20070530.TIK", 
+                @"Common\GBPJPY.zip\GBPJPY20070529.TIK", 
+                @"Common\GBPJPY.zip\GBPJPY20070528.TIK", 
+                @"Common\GBPJPY.zip\GBPJPY20070527.TIK", 
+                @"Common\GBPJPY.zip\GBPJPY20070525.TIK", 
+                @"Common\GBPJPY.zip\GBPJPY20070524.TIK", 
+                @"Common\GBPJPY.zip\GBPJPY20070523.TIK", 
+                @"Common\GBPJPY.zip\GBPJPY20070522.TIK", 
+                @"Common\GBPJPY.zip\GBPJPY20070521.TIK", 
+                @"Common\GBPJPY.zip\GBPJPY20070520.TIK", 
+                @"Common\GBPJPY.zip\GBPJPY20070518.TIK", 
+                @"Common\GBPJPY.zip\GBPJPY20070517.TIK", 
+                @"Common\GBPJPY.zip\GBPJPY20070516.TIK", 
+                @"Common\GBPJPY.zip\GBPJPY20070515.TIK", 
+                @"Common\GBPJPY.zip\GBPJPY20070514.TIK", 
+            }
+            );
+            rawbase("rawsingle", 2, h);
+            Assert.Equal(2840, tickcount);
+            Assert.Equal(20070601, Util.ToQLDate(lasttick.TickDateTime));
+        }
         #endregion Public Methods
 
         #region Private Methods
@@ -290,6 +338,7 @@ namespace Quantler.Tests.Common
             bool viol = t.Datetime < lasttime;
             GOODTIME &= !viol;
             lasttime = t.Datetime;
+            lasttick = t;
         }
 
         private void SimBroker_GotFill(Trade t, PendingOrder o)

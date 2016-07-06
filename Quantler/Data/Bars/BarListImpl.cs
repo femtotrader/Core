@@ -519,6 +519,10 @@ namespace Quantler.Data.Bars
 
             // index the pair
             _typesize2Idx.addindex((int)barIntervalType + interval.ToString(), _intdata.Count - 1);
+
+            // add known interval
+            if(!_custintervals.Contains(interval))
+                _custintervals.Add(interval);
         }
 
         public decimal[] Close()
@@ -660,14 +664,21 @@ namespace Quantler.Data.Bars
             for (int i = 0; i < _intervaltypes.Length; i++)
             {
                 var it = (BarInterval)_intervaltypes[i];
-                var ints = _custintervals[i];
-                if ((it == type) && (size == ints))
+                for (int x = 0; x < _custintervals.Count; x++)
                 {
-                    _curintervalidx = i;
-                    found = true;
-                    break;
+                    var ints = _custintervals[x];
+                    if ((it == type) && (size == ints))
+                    {
+                        _curintervalidx = x;
+                        return true;
+                    }   
                 }
             }
+
+            //interval size is unkown thus add it
+            AddInterval(size, type);
+
+            //Return false
             return found;
         }
 

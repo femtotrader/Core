@@ -1,5 +1,4 @@
-﻿#region License
-/*
+﻿/*
 Copyright (c) Quantler B.V., All rights reserved.
 
 This library is free software; you can redistribute it and/or
@@ -12,7 +11,6 @@ but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 Lesser General Public License for more details.
 */
-#endregion
 
 using Quantler.Data.Bars;
 using Quantler.Interfaces;
@@ -249,6 +247,14 @@ namespace Quantler
             get { return this[(int)interval.TotalSeconds]; }
         }
 
+        public BarList this[BarInterval interval]
+        {
+            get
+            {
+                return this[(int)interval];
+            }
+        }
+
         #endregion Public Indexers
 
         #region Public Methods
@@ -303,6 +309,15 @@ namespace Quantler
         }
 
         /// <summary>
+        /// Process a new tick for this DataStream
+        /// </summary>
+        /// <param name="k"></param>
+        public void GotTick(Tick k)
+        {
+            _bdata.NewTick(k);
+        }
+
+        /// <summary>
         /// Initialize this DataStraem
         /// </summary>
         public void Initialize()
@@ -342,15 +357,6 @@ namespace Quantler
         public void NewPoint(string symbol, decimal p, int time, int date, int size)
         {
             _bdata.NewPoint(symbol, p, time, date, size);
-        }
-
-        /// <summary>
-        /// Process a new tick for this DataStream
-        /// </summary>
-        /// <param name="k"></param>
-        public void GotTick(Tick k)
-        {
-            _bdata.NewTick(k);
         }
 
         public void Reset()

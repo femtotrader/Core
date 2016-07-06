@@ -61,5 +61,12 @@ namespace Quantler.Interfaces
         /// <param name="interval"></param>
         /// <returns></returns>
         BarList this[TimeSpan interval] { get; }
+
+        /// <summary>
+        /// Get historical bars for a given BarInterval
+        /// </summary>
+        /// <param name="interval"></param>
+        /// <returns></returns>
+        BarList this[BarInterval interval] { get; }
     }
 }

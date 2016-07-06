@@ -63,7 +63,7 @@ namespace Quantler.Tests.Common
                     blt.AddInterval(120);
             }
 
-            //make sure we got two symbols as bar events
+            //make sure we got one symbol as bar events
             Assert.Equal(1, syms.Count);
 
             // make sure our symbols matched barlist count
@@ -71,6 +71,52 @@ namespace Quantler.Tests.Common
 
             // make sure same on individual bars
             Assert.True(blt[120].Count > 0);
+        }
+
+        [Fact]
+        [Trait("Quantler.Common", "Quantler")]
+        public void MultipleIntervalsRequests()
+        {
+            OHLCBarStream blt = new OHLCBarStream(new ForexSecurity("TST"));
+            blt.AddInterval(BarInterval.Minute);
+            blt.AddInterval(BarInterval.FiveMin);
+            blt.GotNewBar += new SymBarIntervalDelegate(blt_GotNewBar);
+
+            Tick[] tape = TestBarList.SampleData();
+            blt.Initialize();
+
+            // add ticks from tape to tracker
+            for (int i = 0; i < tape.Length; i++)
+            {
+                blt.GotTick(tape[i]);
+                if (i == 1)
+                    blt.AddInterval(120);
+            }
+
+            // Check if the data differs per interval
+            Assert.NotEqual(blt[BarInterval.Minute][-2].Close, blt[BarInterval.FiveMin][-2].Close);
+        }
+
+        [Fact]
+        [Trait("Quantler.Common", "Quantler")]
+        public void IntervalRequestDuringRun()
+        {
+            OHLCBarStream blt = new OHLCBarStream(new ForexSecurity("TST"));
+            blt.AddInterval(BarInterval.FiveMin);
+            blt.GotNewBar += new SymBarIntervalDelegate(blt_GotNewBar);
+
+            Tick[] tape = TestBarList.SampleData();
+            blt.Initialize();
+
+            // add ticks from tape to tracker
+            for (int i = 0; i < tape.Length; i++)
+            {
+                blt.GotTick(tape[i]);
+                var value = blt[BarInterval.Minute].RecentBar;
+            }
+
+            // Check if the data differs per interval
+            Assert.NotEqual(blt[BarInterval.Minute][-2].Close, blt[BarInterval.FiveMin][-2].Close);
         }
 
         [Fact]
