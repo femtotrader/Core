@@ -22,7 +22,7 @@ namespace Quantler.Templates
     {
         #region Public Methods
 
-        public virtual decimal CalculateSwap(Order o)
+        public virtual decimal CalculateMarginInterest(Order o)
         {
             return 0;
         }

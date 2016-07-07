@@ -63,8 +63,6 @@ namespace Quantler.Backtester
 
         private Dictionary<Trade, PendingOrder> TradeMutations = new Dictionary<Trade, PendingOrder>();
 
-        private Dictionary<string, long> SymbolTicksProcessed = new Dictionary<string, long>();
-
         #endregion Private Fields
 
         #region Public Constructors
@@ -195,10 +193,6 @@ namespace Quantler.Backtester
 
             //Count ticks
             TicksProcessed++;
-            if (!SymbolTicksProcessed.ContainsKey(t.Symbol))
-                SymbolTicksProcessed.Add(t.Symbol, 1);
-            else
-                SymbolTicksProcessed[t.Symbol] += 1;
 
             try
             {
@@ -286,14 +280,14 @@ namespace Quantler.Backtester
 
             StreamWriter wr = new StreamWriter(Directory.GetCurrentDirectory() + @"\trades.csv", false);
 
-            wr.WriteLine("Date,Time,Symbol,Side,xSize,xPrice,Comment,OpenPL,ClosedPL,OpenSize,ClosedSize,AvgPrice,Commission,Currency,Swap");
-            var lines = Util.TradesToClosedPL(TradeMutations.Keys.ToList(), ',');
+            wr.WriteLine("Date|Time|Symbol|Side|xSize|xPrice|Comment|OpenPL|ClosedPL|OpenSize|ClosedSize|AvgPrice|Commission|Currency|Swap");
+            var lines = Util.TradesToClosedPL(TradeMutations.Keys.ToList(), '|');
             var pos = TradeMutations.Values.ToArray();
 
             for (int i = 0; i < lines.Length; i++)
             {
                 var oldpo = TradeHistory[i];
-                lines[i] += string.Format(",{0},{1},{2}", oldpo.Commission, oldpo.Currency, oldpo.Swap);
+                lines[i] += string.Format("|{0}|{1}|{2}", oldpo.Commission, oldpo.Currency, oldpo.Swap);
                 wr.WriteLine(lines[i]);
             }
             wr.Flush();
@@ -301,12 +295,12 @@ namespace Quantler.Backtester
 
             wr = new StreamWriter(Directory.GetCurrentDirectory() + @"\orders.csv", false);
 
-            wr.WriteLine("ID,Date,Time,Symbol,Side,xSize,xPrice,Comment,OrderType,Direction,LimitPrice,StopPrice,Size,Quantity,Status,Cancelled");
+            wr.WriteLine("ID|Date|Time|Symbol|Side|xSize|xPrice|Comment|OrderType|Direction|LimitPrice|StopPrice|Size|Quantity|Status|Cancelled");
 
             for (int i = 0; i < OrderHistory.Count; i++)
             {
                 var oldpo = OrderHistory[i];
-                string line = string.Format("{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10},{11},{12},{13},{14},{15}",
+                string line = string.Format("{0}|{1}|{2}|{3}|{4}|{5}|{6}|{7}|{8}|{9}|{10}|{11}|{12}|{13}|{14}|{15}",
                     oldpo.OrderId, oldpo.Order.Created.Date.ToShortDateString(), oldpo.Order.Created.TimeOfDay, oldpo.Order.Security.Name, oldpo.Order.Direction, oldpo.Order.Size, oldpo.Order.LimitPrice, oldpo.Order.Comment,
                     oldpo.Order.Type, oldpo.Order.Direction, oldpo.Order.LimitPrice, oldpo.Order.StopPrice, oldpo.Order.Size, oldpo.Order.Quantity, oldpo.OrderStatus, oldpo.IsCancelled);
                 wr.WriteLine(line);

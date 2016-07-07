@@ -726,6 +726,8 @@ namespace Quantler.Agent
             //Submit our new stop order
             if (rmOrder != null && rmOrder.Order.IsValid)
                 SubmitOrder(rmOrder);
+            else if (rmOrder != null && !rmOrder.Order.IsValid)
+                _logger.Warn("RM: INVALID ORDER {0} - {1}", rmOrder.OrderStatus, rmOrder.Order.Security.Name);
 
             //Check money management
             if (InvokeMm.Count > 0)
@@ -738,6 +740,8 @@ namespace Quantler.Agent
             //Submit our new entry order
             if (entryOrder.Order.IsValid)
                 SubmitOrder(entryOrder);
+            else
+                _logger.Warn("MM: INVALID ORDER {0} - {1}", entryOrder.OrderStatus, entryOrder.Order.Security.Name);
 
             return true;
         }

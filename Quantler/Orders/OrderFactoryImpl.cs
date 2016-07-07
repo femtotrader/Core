@@ -57,7 +57,7 @@ namespace Quantler.Orders
             {
                 var position = _portfolio.Positions[security];
                 if (!position.IsFlat)
-                    quantity = position.FlatSize / security.LotSize;
+                    quantity = (decimal)position.FlatSize / (decimal)security.LotSize;
                 if (position.IsLong || _portfolio.Agents.First(x => x.AgentId == agentid).CurrentState[symbol].TrueForAll(x => x == AgentState.EntryLong))
                     direction = Direction.Short;
                 else if (position.IsShort || _portfolio.Agents.First(x => x.AgentId == agentid).CurrentState[symbol].TrueForAll(x => x == AgentState.EntryShort))
@@ -101,7 +101,7 @@ namespace Quantler.Orders
             }
 
             //Check order minimum size
-            if(norder.Size < norder.Security.OrderMinSize)
+            if(norder.UnsignedSize < norder.Security.OrderMinSize)
             {
                 toreturn.OrderStatus = StatusType.ORDER_INVALID_VOLUME;
                 toreturn.Cancel();

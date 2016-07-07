@@ -24,11 +24,11 @@ namespace Quantler.Interfaces
         #region Public Methods
 
         /// <summary>
-        /// Calculate current swap for this order
+        /// Calculate margin interest (swap) for this order
         /// </summary>
         /// <param name="o"></param>
         /// <returns></returns>
-        decimal CalculateSwap(Order o);
+        decimal CalculateMarginInterest(Order o);
 
         /// <summary>
         /// Returns the total commission for the order presented

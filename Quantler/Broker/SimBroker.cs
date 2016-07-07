@@ -603,10 +603,7 @@ namespace Quantler.Broker
 
             //Check if we could find this order
             if (currentorder == null)
-            {
-                changedorder.OrderStatus = StatusType.ORDER_NOT_FOUND;
                 return;
-            }
 
             //Send changes to the broker book
             masterorders.Remove(pendingorder);
@@ -642,11 +639,7 @@ namespace Quantler.Broker
 
             //Check if we could find this order
             if (currentorder == null)
-            {
-                changedorder.Cancel();
-                changedorder.OrderStatus = StatusType.ORDER_NOT_FOUND;
                 return;
-            }
 
             //Check order integrity
             var result = CheckOrderIntegrity(currentorder);

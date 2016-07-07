@@ -1,6 +1,5 @@
-﻿#region License
-/*
-Copyright Quantler BV, based on original code copyright Tradelink.org. 
+﻿/*
+Copyright Quantler BV, based on original code copyright Tradelink.org.
 This file is released under the GNU Lesser General Public License v3. http://www.gnu.org/copyleft/lgpl.html
 
 This library is free software; you can redistribute it and/or
@@ -13,7 +12,6 @@ but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 Lesser General Public License for more details.
 */
-#endregion
 
 using Quantler.Interfaces;
 using Quantler.Tracker;
@@ -161,6 +159,12 @@ namespace Quantler.Trades
 
         public string LoseSeqProbEffHyp { get { return V2S(Math.Min(100, (decimal)Math.Pow(1 / 2.0, ConsecLose) * (Trades - Flats - ConsecLose + 1) * 100)) + @" %"; } }
 
+        public decimal MarginInterest
+        {
+            get;
+            set;
+        }
+
         public decimal MaxDD { get; set; }
 
         public string MaxDdNice { get { return MaxDD.ToString("P2"); } }
@@ -285,7 +289,6 @@ namespace Quantler.Trades
                     value = Math.Round(Calc.MaxDDPct(PortfolioPctReturns), 5);
                     MaxDDPortfolio = MaxDDPortfolio < value ? MaxDDPortfolio : value;
 
-                    SymbolCount = ((PositionTracker)_positions).Count;
                     DaysTraded = _days.Count;
                     GrossPerDay = Math.Round(GrossPL / DaysTraded, 2);
                     GrossPerSymbol = Math.Round(GrossPL / SymbolCount, 2);
@@ -405,7 +408,10 @@ namespace Quantler.Trades
             }
 
             if (!Symbols.Contains(tr.Source.Symbol))
+            {
                 Symbols += tr.Source.Symbol + ",";
+                SymbolCount++;
+            }
             Trades++;
             SharesTraded += Math.Abs(tr.Source.Xsize / tr.Source.Security.LotSize);
             GrossPL += tr.ClosedPl;
