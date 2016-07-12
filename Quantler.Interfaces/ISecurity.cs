@@ -1,8 +1,6 @@
-﻿#region License
-/*
-Copyright Quantler BV, based on original code copyright Tradelink.org. 
+﻿/*
+Copyright Quantler BV, based on original code copyright Tradelink.org.
 This file is released under the GNU Lesser General Public License v3. http://www.gnu.org/copyleft/lgpl.html
-
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -14,7 +12,6 @@ but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 Lesser General Public License for more details.
 */
-#endregion
 
 using System;
 
@@ -41,6 +38,11 @@ namespace Quantler.Interfaces
         /// Name of this security at the broker
         /// </summary>
         string BrokerName { get; }
+
+        /// <summary>
+        /// Datasource used for this security
+        /// </summary>
+        string DataSource { get; }
 
         /// <summary>
         /// exchange associated with security
@@ -93,24 +95,24 @@ namespace Quantler.Interfaces
         string Name { get; }
 
         /// <summary>
-        /// Returns the minimum quantity for an order (0.01 for microlots and 0.10 for mini lots)
-        /// </summary>
-        decimal OrderMinQuantity { get; }
-
-        /// <summary>
         /// Returns the maximum quantity for an order (0.01 for microlots and 0.10 for mini lots)
         /// </summary>
         decimal OrderMaxQuantity { get; }
 
         /// <summary>
-        /// Returns the minimum size for an order
-        /// </summary>
-        int OrderMinSize { get; }
-
-        /// <summary>
         /// Returns the maximum size for an order
         /// </summary>
         int OrderMaxSize { get; }
+
+        /// <summary>
+        /// Returns the minimum quantity for an order (0.01 for microlots and 0.10 for mini lots)
+        /// </summary>
+        decimal OrderMinQuantity { get; }
+
+        /// <summary>
+        /// Returns the minimum size for an order
+        /// </summary>
+        int OrderMinSize { get; }
 
         /// <summary>
         /// Returns the step quantity (0.01 for microlots and 0.10 for mini lots)

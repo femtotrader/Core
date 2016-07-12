@@ -57,6 +57,7 @@ namespace Quantler.Securities
             _sym = sym;
             DestEx = exchange;
             _type = type;
+            DataSource = "Local";
         }
 
         /// <summary>
@@ -69,6 +70,7 @@ namespace Quantler.Securities
             _type = copy.Type;
             DestEx = copy.DestEx;
             Details = copy.Details;
+            DataSource = "Local";
         }
 
         /// <summary>
@@ -123,6 +125,15 @@ namespace Quantler.Securities
         /// Name of the broker for this security
         /// </summary>
         public string BrokerName { get; set; }
+
+        /// <summary>
+        /// Name of the datasource used for this security
+        /// </summary>
+        public string DataSource
+        {
+            get;
+            set;
+        }
 
         /// <summary>
         /// date associated with security
@@ -194,6 +205,11 @@ namespace Quantler.Securities
         /// </summary>
         public string Name { get { return _sym; } set { _sym = value; } }
 
+        public decimal OrderMaxQuantity
+        {
+            get { return OrderMaxSize / (decimal)LotSize; }
+        }
+
         public int OrderMaxSize
         {
             get;
@@ -203,11 +219,6 @@ namespace Quantler.Securities
         public decimal OrderMinQuantity
         {
             get { return OrderMinSize / (decimal)LotSize; }
-        }
-
-        public decimal OrderMaxQuantity
-        {
-            get { return OrderMaxSize / (decimal)LotSize; }
         }
 
         public int OrderMinSize

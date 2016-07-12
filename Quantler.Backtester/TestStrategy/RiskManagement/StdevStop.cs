@@ -1,81 +1,112 @@
-﻿#region License
-/*
-Copyright (c) Quantler B.V., All rights reserved.
-
-This library is free software; you can redistribute it and/or
-modify it under the terms of the GNU Lesser General Public
-License as published by the Free Software Foundation; either
-version 3.0 of the License, or (at your option) any later version.
-
-This library is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-Lesser General Public License for more details.
-*/
-#endregion
-
-using Quantler;
+﻿using Quantler;
 using Quantler.Interfaces;
 using Quantler.Templates;
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using MathNet.Numerics;
+using MathNet.Numerics.Statistics;
 
-//Manage new positions based on a volatility stop
-class StdevStop : RiskManagementTemplate
+//Use a fixed stop amount to manage new positions
+class Risk_Hedger : RiskManagementTemplate
 {
-    //Multiplier to use for the StDev calculation
-    [Parameter(1, 4, 1, "multiplier")]
-    public int multiplier { get; set; }
+    //Specify arbitrage amount
+    [Parameter(10, 100, 10, "Hedged %")]
+    public int arbitrage { get; set; }
 
-    // We are always allowed to trade
+    private ISecurity lastsecurity;
+    private Dictionary<ISecurity, double> corr = new Dictionary<ISecurity, double>();
+
+    public override void Initialize()
+    {
+        //Add other pairs data
+        AddStream(SecurityType.Forex, "AUDJPY", BarInterval.Day);
+        AddStream(SecurityType.Forex, "AUDNZD", BarInterval.Day);
+        AddStream(SecurityType.Forex, "AUDUSD", BarInterval.Day);
+        AddStream(SecurityType.Forex, "CADJPY", BarInterval.Day);
+        AddStream(SecurityType.Forex, "CHFJPY", BarInterval.Day);
+        AddStream(SecurityType.Forex, "EURGBP", BarInterval.Day);
+        AddStream(SecurityType.Forex, "EURJPY", BarInterval.Day);
+        AddStream(SecurityType.Forex, "EURUSD", BarInterval.Day);
+        AddStream(SecurityType.Forex, "GBPJPY", BarInterval.Day);
+        AddStream(SecurityType.Forex, "GBPUSD", BarInterval.Day);
+        AddStream(SecurityType.Forex, "NZDUSD", BarInterval.Day);
+        AddStream(SecurityType.Forex, "USDCAD", BarInterval.Day);
+        AddStream(SecurityType.Forex, "USDCHF", BarInterval.Day);
+        AddStream(SecurityType.Forex, "USDJPY", BarInterval.Day);
+        AddStream(SecurityType.Forex, "EURCHF", BarInterval.Day);
+
+        //Add correlation pairs
+        corr.Add(Portfolio.Securities["AUDJPY"], 0);
+        corr.Add(Portfolio.Securities["AUDNZD"], 0);
+        corr.Add(Portfolio.Securities["AUDUSD"], 0);
+        corr.Add(Portfolio.Securities["CADJPY"], 0);
+        corr.Add(Portfolio.Securities["CHFJPY"], 0);
+        corr.Add(Portfolio.Securities["EURGBP"], 0);
+        corr.Add(Portfolio.Securities["EURJPY"], 0);
+        corr.Add(Portfolio.Securities["EURUSD"], 0);
+        corr.Add(Portfolio.Securities["GBPJPY"], 0);
+        corr.Add(Portfolio.Securities["GBPUSD"], 0);
+        corr.Add(Portfolio.Securities["NZDUSD"], 0);
+        corr.Add(Portfolio.Securities["USDCAD"], 0);
+        corr.Add(Portfolio.Securities["USDCHF"], 0);
+        corr.Add(Portfolio.Securities["USDJPY"], 0);
+        corr.Add(Portfolio.Securities["EURCHF"], 0);
+    }
+
+    // Executed before each trade made
     public override bool IsTradingAllowed()
     {
-        return true;
+        //Do not trade if the ROI is less than -20%
+        if (Agent.Results.ROI < -.20M)
+            return false;
+        else
+            return Agent.Bars[Agent.Security, TimeSpan.FromDays(1), -15].IsValid;
     }
 
-    //Pass on the Risk Management order
-    public PendingOrder RiskManagement(PendingOrder pendingorder, AgentState state)
+    // Executed when a new order has been created
+    public PendingOrder RiskManagement(PendingOrder pendingOrder, AgentState state)
     {
-        //Check if this is an exit order, than do nothing
-        if (pendingorder.Order.Direction == Direction.Flat)
+        //Check if we have enough data
+        if (!Agent.Bars[Agent.Security, (int)BarInterval.Day, -15].IsValid)
+            return null;
+        //Check if we can calculate the correlation
+        else if (!corr.ContainsKey(Agent.Security))
             return null;
 
-        //Cancel any pending stop orders
-        Agent.PendingOrders.Where(x => x.Order.Symbol == pendingorder.Order.Symbol &&
-            (x.Order.Type == OrderType.Stop || x.Order.Type == OrderType.StopLimit)).Cancel();
+        //Calculate correlation for each symbol
+        var basevalues = new List<double>();
+        for (int i = 0; i < 15; i++)
+            basevalues.Add((double)Agent.Bars[Agent.Security, (int)BarInterval.Day, i].Close);
 
-        //Create a flattening stop limit order
-        return CreateOrder(pendingorder.Order.Symbol, Direction.Flat, pendingorder.Order.Quantity, 0, StopLevel(pendingorder));
-    }
-
-    //Calculate the StDev
-    private double STDEV(decimal[] values)
-    {
-        decimal average = values.Average();
-        decimal sumOfSquaresOfDifferences = values.Select(val => (val - average) * (val - average)).Sum();
-        double sd = Math.Sqrt((double)sumOfSquaresOfDifferences / (double)values.Length);
-        return sd;
-    }
-
-    //Set the current stop level based on the entry order
-    private decimal StopLevel(PendingOrder pendingorder)
-    {
-        //Set a standard stop as the initial run might not have enough bars
-        decimal value = 500 * CurrentTick[Agent.Symbol].AskSize;
-        int period = 25;
-
-        //Get Bars
-        decimal[] bars = Portfolio.Streams[pendingorder.Order.Symbol][Agent.TimeFrame].Close();
-
-        if (bars.Length >= period)
+        //Get all symbol data
+        foreach (var symbol in corr.Keys.ToArray())
         {
-            value = Convert.ToDecimal(STDEV(bars.Take(period).ToArray()));  //Set StDev
-            value *= multiplier;                                            //Add multiplier
+            var values = new List<double>();
+            for (int i = 0; i < 15; i++)
+                values.Add((double)Agent.Bars[symbol, (int)BarInterval.Day, i].Close);
+
+            //calculate correlation coeff
+            corr[symbol] = Correlation.Pearson(basevalues.ToArray(), values.ToArray());
         }
 
-        // Return stop level
-        return pendingorder.Order.Direction == Direction.Long ?
-            CurrentBar[Agent.Symbol].Close - value :
-            CurrentBar[Agent.Symbol].Close + value;
+        //Get item with the highest corr
+        var max = corr
+            .Where(x => x.Key != pendingOrder.Order.Security)
+            .Max(n => n.Value);
+        var security = corr
+            .Where(x => x.Value == max).FirstOrDefault().Key;
+
+        //Remove old position
+        if (lastsecurity != security && !Agent.Positions[security].IsFlat)
+            SubmitOrder(CreateOrder(lastsecurity.Name, Direction.Flat, Agent.Positions[security].FlatQuantity));
+
+        //Return our current order
+        lastsecurity = security;
+        decimal quantity = pendingOrder.Order.Quantity * (arbitrage / 100M);
+        quantity = quantity > 0.01M ? quantity : 0.01M;
+        quantity += Math.Abs(Agent.Positions[security].FlatQuantity);
+
+        return CreateOrder(security.Name, pendingOrder.Order.Direction == Direction.Long ? Direction.Short : Direction.Long, quantity, 0, 0);
     }
 }

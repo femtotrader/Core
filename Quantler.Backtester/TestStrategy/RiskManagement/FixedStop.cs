@@ -36,10 +36,15 @@ class FixedStop : RiskManagementTemplate
     // Executed when a new order has been created
     public PendingOrder RiskManagement(PendingOrder pendingOrder, AgentState state)
     {
-        //Check if this is an exit order, than do nothing
+        //Remove all current pending stop orders
+        Agent.PendingOrders
+            .Where(x => x.Order.StopPrice > 0).Cancel();
+
+        //Check our current state
         if (state != AgentState.EntryLong && state != AgentState.EntryShort)
             return null;
 
+        //Get current close price
         decimal CurrentClose = CurrentBar[pendingOrder.Order.Symbol].Close;
 
         //Stop size measured in pips
@@ -50,13 +55,8 @@ class FixedStop : RiskManagementTemplate
                                 CurrentClose - pips :
                                 CurrentClose + pips;
 
-        //Cancel any pending stop orders
-        Agent.PendingOrders
-                    .Where(x => x.Order.AgentId == Agent.AgentId)
-                    .Where(x => x.Order.Symbol == pendingOrder.Order.Symbol &&
-                            (x.Order.Type == OrderType.Stop || x.Order.Type == OrderType.StopLimit)).Cancel();
-
         //Return our current stoporder
-        return CreateOrder(pendingOrder.Order.Symbol, Direction.Flat, pendingOrder.Order.Quantity, 0, price);
+        return CreateOrder(pendingOrder.Order.Symbol, pendingOrder.Order.Direction == Direction.Long ? Direction.Short : Direction.Long,
+            pendingOrder.Order.Quantity, 0, price);
     }
 }

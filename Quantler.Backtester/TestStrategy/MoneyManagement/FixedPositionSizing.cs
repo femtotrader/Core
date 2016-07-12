@@ -37,7 +37,9 @@ class FixedPositionSizing : MoneyManagementTemplate
         var positionsize = (pendingorder.Order.Quantity * FixedSize);
 
         //Get current stop order
-        var currentstop = Agent.PendingOrders.FirstOrDefault(x => x.Order.Symbol == pendingorder.Order.Symbol &&
+        var currentstop = Agent.PendingOrders
+                    .Where(x => !x.IsCancelled)
+                    .FirstOrDefault(x => x.Order.Symbol == pendingorder.Order.Symbol &&
                     (x.Order.Type == OrderType.Stop || x.Order.Type == OrderType.StopLimit));
 
         //See if we need to update our stop order

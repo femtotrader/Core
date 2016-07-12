@@ -43,6 +43,7 @@ namespace Quantler.Tests.Common
             Assert.True(crude.Type == SecurityType.Future, crude.Type.ToString());
             SecurityImpl goog = SecurityImpl.Parse("GOOG");
             Assert.Equal("GOOG", goog.Name);
+            Assert.Equal("Local", goog.DataSource);
         }
     }
 }
