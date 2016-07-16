@@ -98,7 +98,11 @@ namespace Quantler.Indicators
 
         public bool CrossedAbove(decimal seriesB, int lookback = 3)
         {
-            return CrossedAbove(new[] { seriesB }, lookback);
+            decimal[] serievalues = new decimal[lookback];
+            for (int i = 0; i < lookback; i++)
+                serievalues[i] = seriesB;
+
+            return CrossedAbove(serievalues, lookback);
         }
 
         public bool CrossedAbove(DataSerie b, int lookback = 3)
@@ -145,7 +149,11 @@ namespace Quantler.Indicators
 
         public bool CrossedUnder(decimal seriesB, int lookback = 3)
         {
-            return CrossedUnder(new[] { seriesB }, lookback);
+            decimal[] serievalues = new decimal[lookback];
+            for (int i = 0; i < lookback; i++)
+                serievalues[i] = seriesB;
+
+            return CrossedUnder(serievalues, lookback);
         }
 
         public bool CrossedUnder(DataSerie b, int lookback = 3)
