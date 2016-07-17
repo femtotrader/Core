@@ -90,10 +90,10 @@ namespace Quantler.Indicators
             decimal current = Compute.Invoke(bar);
 
             //Add new value
-            _tavalues.Insert(0, (double)current);
+            _tavalues.Add((double)current);
 
             //Clean up old values
-            if (_tavalues.Count > Period * 3)
+            if (_tavalues.Count > Period * 5)
                 _tavalues.RemoveRange(0, Period);
 
             //Calculate the indicator
