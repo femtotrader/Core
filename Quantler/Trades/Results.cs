@@ -384,7 +384,7 @@ namespace Quantler.Trades
             _pctrets.Add(pctret);
 
             //adjust initial capital based balance
-            decimal portfolioreturn = netpl / InitialCapital;
+            decimal portfolioreturn = netpl / Balance;
             _portfPctreturns.Add(portfolioreturn);
 
             // add to neg returns if negative

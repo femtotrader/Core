@@ -77,10 +77,10 @@ namespace Quantler.Tests.Common
 #endif
 
             Assert.Equal(0.0238M, Math.Round(rt.PortfolioPctReturns.Average() * 100, 4));
-            Assert.Equal(0.1029M, Math.Round(Calc.StdDev(rt.PortfolioPctReturns) * 100, 4));
-            Assert.Equal(-9.485M, rt.SharpeRatio);
-            Assert.Equal(-27.076M, rt.SortinoRatio);
-            Assert.Equal(2.056M, rt.ProfitFactor);
+            Assert.Equal(0.1028M, Math.Round(Calc.StdDev(rt.PortfolioPctReturns) * 100, 4));
+            Assert.Equal(-9.496M, rt.SharpeRatio);
+            Assert.Equal(-27.164M, rt.SortinoRatio);
+            Assert.Equal(2.060M, rt.ProfitFactor);
             Assert.Equal(1100, rt.SharesTraded);
             Assert.Equal(11, Math.Round(rt.Commissions));
             Assert.Equal(19, Math.Round(rt.NetPL));
